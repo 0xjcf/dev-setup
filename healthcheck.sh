@@ -111,6 +111,14 @@ else
   $JSON && OUTPUT+="\n  \"docker_config\": \"fail\"," || $QUIET || echo "⚠️ Docker plugin config missing"
 fi
 
+# Ollama API check
+if curl -s http://localhost:11434/api/tags &>/dev/null; then
+  $JSON && OUTPUT+="\n  \"ollama_service\": \"ok\"," || $QUIET || echo "✅ Ollama service is up and running"
+else
+  $JSON && OUTPUT+="\n  \"ollama_service\": \"fail\"," || $QUIET || echo "❌ Ollama service is not responding"
+  FAIL=1
+fi
+
 check_env_var "OPENSSL_DIR" "openssl"
 check_rc_sourced "cargo_env" ".cargo/env"
 

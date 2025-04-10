@@ -6,7 +6,7 @@ step() {
   echo -e "\n🔄 [$1/${TOTAL_STEPS}] $2..."
 }
 
-TOTAL_STEPS=13
+TOTAL_STEPS=14
 CURRENT_STEP=1
 
 echo "🚀 Installing Jose's Dev Stack..."
@@ -76,7 +76,6 @@ else
   fi
 fi
 ((CURRENT_STEP++))
-
 
 # 6. rustup
 step $CURRENT_STEP "Installing rustup (if needed)"
@@ -159,6 +158,29 @@ else
 fi
 ((CURRENT_STEP++))
 
-# 13. Final check
+# 13. Ollama (local LLM server)
+step $CURRENT_STEP "Installing Ollama (if needed)"
+if command -v ollama &>/dev/null; then
+  echo "✅ Ollama already installed"
+else
+  curl -fsSL https://ollama.com/install.sh | sh
+fi
+
+# Ensure Ollama is running
+if curl -s http://localhost:11434/api/tags &>/dev/null; then
+  echo "✅ Ollama service is up and running."
+else
+  echo "⚠️ Ollama installed but service not responding. Attempting to start it now..."
+  nohup ollama serve >/dev/null 2>&1 &
+  sleep 2
+  if curl -s http://localhost:11434/api/tags &>/dev/null; then
+    echo "✅ Ollama service started successfully."
+  else
+    echo "❌ Ollama still not responding. You may need to reboot or run 'ollama serve' manually."
+  fi
+fi
+((CURRENT_STEP++))
+
+# 14. Final check
 step $CURRENT_STEP "Running healthcheck"
 ./healthcheck.sh --json
