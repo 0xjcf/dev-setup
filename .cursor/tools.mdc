@@ -1,41 +1,46 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
 ---
 ### 📘 Purpose:
-This file is a guide for AI agents (and developers) working within a Cursor environment. It documents the tools available in this system, how they’re used, and when to invoke them.
+This file is a guide for AI agents (and developers) working within a Cursor environment. It documents the tools available in this system, how they're used, and when to invoke them.
 
 ---
 
 ### 🔧 Core CLI Tools
 
-| Tool     | Purpose                                                    | Example Usage                       |
-|----------|------------------------------------------------------------|-------------------------------------|
-| `bat`    | Enhanced `cat` with syntax highlighting                    | `bat README.md`                     |
-| `ripgrep (rg)` | Fast recursive code search                             | `rg "onboarding-agent"`            |
-| `fzf`    | Fuzzy finder for files, history, or project items          | `ls | fzf`                          |
-| `gh`     | GitHub CLI: PRs, issues, cloning                           | `gh pr create`                      |
-| `direnv` | Auto-load `.envrc` project-specific environment variables  | `direnv allow`                      |
-| `just`   | Task runner (like Makefile, but simpler)                   | `just dev`                          |
-| `eza`    | Improved `ls` with tree view and color                     | `eza -T`                            |
-| `tokei`  | Count lines of code by language                            | `tokei`                             |
-| `jq`     | Query and format JSON                                      | `cat data.json | jq .summary`       |
-| `glow`   | Preview Markdown in terminal                               | `glow project-brief.md`            |
-| `hyperfine` | Benchmark CLI commands                                  | `hyperfine 'cargo build'`          |
-| `zoxide` | Smarter `cd` alternative with tracking                     | `z oxide add ~/project && z project`|
+| Tool           | Purpose                                                    | Example Usage                       |
+|----------------|------------------------------------------------------------|-------------------------------------|
+| `bat`          | Enhanced `cat` with syntax highlighting                    | `bat README.md`                     |
+| `ripgrep (rg)` | Fast recursive code search                                 | `rg "onboarding-agent"`             |
+| `fzf`          | Fuzzy finder for files, history, or project items          | `ls | fzf`                          |
+| `gh`           | GitHub CLI: PRs, issues, cloning                           | `gh pr create`                      |
+| `direnv`       | Auto-load `.envrc` project-specific environment variables  | `direnv allow`                      |
+| `just`         | Task runner (like Makefile, but simpler)                   | `just setup`, `just bootstrap`      |
+| `eza`          | Improved `ls` with tree view and color                     | `eza -T`                            |
+| `tokei`        | Count lines of code by language                            | `tokei`                             |
+| `jq`           | Query and format JSON                                      | `cat data.json | jq .summary`       |
+| `glow`         | Preview Markdown in terminal                               | `glow project-brief.md`             |
+| `hyperfine`    | Benchmark CLI commands                                     | `hyperfine 'cargo build'`           |
+| `zoxide`       | Smarter `cd` alternative with tracking                     | `z oxide add ~/project && z project`|
 
 ---
 
 ### 🐳 Docker & Security
 
-| Tool         | Purpose                                            | Example Usage                 |
-|--------------|----------------------------------------------------|-------------------------------|
-| `docker`     | Container runtime                                  | `docker build -t app .`       |
-| `docker-compose` | Define multi-container environments             | `docker-compose up`           |
-| `dive`       | Inspect Docker image layers                        | `dive app-image`              |
-| `trivy`      | Security scan for Docker images & codebases        | `trivy image node:18`         |
-| `lazydocker` | Terminal UI for Docker container management        | `lazydocker`                  |
+| Tool              | Purpose                                            | Example Usage                 |
+|-------------------|----------------------------------------------------|-------------------------------|
+| `docker`          | Container runtime                                  | `docker build -t app .`       |
+| `docker-compose`  | Define multi-container environments                | `docker-compose up`           |
+| `dive`            | Inspect Docker image layers                        | `dive app-image`              |
+| `trivy`           | Security scan for Docker images & codebases        | `trivy image node:18`         |
+| `lazydocker`      | Terminal UI for Docker container management        | `lazydocker`                  |
 
 > ℹ️ `Docker Desktop` or `Colima` is recommended for runtime support. This setup checks for Desktop presence and suggests `colima` if not detected.
 
@@ -52,6 +57,16 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 | `rustfmt`        | Code formatter for Rust                           | `cargo fmt`                       |
 
 > 🧠 Note: Project dependencies like `burn`, `candle`, `llama.cpp`, `Axum`, and `rusqlite` are managed in `Cargo.toml`, not installed globally.
+
+---
+
+### 🤖 AI/ML Tooling
+
+| Tool           | Purpose                                           | Example Usage                         |
+|----------------|---------------------------------------------------|---------------------------------------|
+| `ollama`       | Local LLM server for model inference              | `ollama serve &`, `ollama run llama2` |
+
+> 🧠 Note: Ollama runs as a local service on port 11434. Use `ollama serve` to start the server and `curl http://localhost:11434/api/tags` to check its status.
 
 ---
 
@@ -79,3 +94,5 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 ---
 
 > 💡 Agents and developers should use these tools consistently across all automation, linting, scaffolding, and CI pipelines. Prefer the `just` task runner to wrap multi-step commands and reduce cognitive load.
+> 🔧 Some tools like `playwright`, `biome`, and `@lhci/cli` are installed per-project via `bootstrap.sh`, not globally.
+
