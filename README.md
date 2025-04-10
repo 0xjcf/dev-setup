@@ -4,7 +4,7 @@ This repository contains the setup scripts and automation tasks to bootstrap and
 
 - Global system-level tooling (`setup.sh`)
 - Per-project bootstrapping (`bootstrap.sh`)
-- AI/agent-readable toolchain reference (`.cursor/tools.md`)
+- AI/agent-readable toolchain reference (`.cursor/tools.mdc`)
 - Task automation via `justfile`
 
 ---
@@ -17,7 +17,7 @@ dev-setup/
 ├── bootstrap.sh       # Run from any project root to configure that project
 ├── justfile           # Task runner for setup/bootstrap/dev ops
 ├── .cursor/
-│   └── tools.md       # Tool manifest for Cursor and AI agents
+│   └── tools.mdc       # Tool manifest for Cursor and AI agents
 └── README.md          # You are here
 ```
 
@@ -56,7 +56,7 @@ just ai-docs
 ---
 
 ## 🤖 Cursor AI Integration
-Cursor AI agents will automatically reference `.cursor/tools.md` to:
+Cursor AI agents will automatically reference `.cursor/tools.mdc` to:
 - Understand available CLI tools
 - Follow standardized usage patterns
 - Assist in task automation and command generation
