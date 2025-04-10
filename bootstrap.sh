@@ -29,6 +29,16 @@ if [ -f playwright.config.ts ] || [ -f playwright.config.js ]; then
   npx playwright install
 fi
 
+# Install project-level dev tools
+echo "🧪 Installing project dev CLIs..."
+pnpm add -D \
+  vitest \
+  @playwright/test \
+  biome \
+  workbox-cli \
+  @lhci/cli \
+  npm-check-updates
+
 # Setup Rust environment
 if [ -f Cargo.toml ]; then
   echo "🦀 Checking Rust toolchain..."

@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 ### 📘 Purpose:
 This file is a guide for AI agents (and developers) working within a Cursor environment. It documents the tools available in this system, how they’re used, and when to invoke them.
 
@@ -13,13 +18,12 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 | `gh`     | GitHub CLI: PRs, issues, cloning                           | `gh pr create`                      |
 | `direnv` | Auto-load `.envrc` project-specific environment variables  | `direnv allow`                      |
 | `just`   | Task runner (like Makefile, but simpler)                   | `just dev`                          |
-| `exa`    | Improved `ls` with tree view and color                     | `exa -T`                            |
+| `eza`    | Improved `ls` with tree view and color                     | `eza -T`                            |
 | `tokei`  | Count lines of code by language                            | `tokei`                             |
 | `jq`     | Query and format JSON                                      | `cat data.json | jq .summary`       |
 | `glow`   | Preview Markdown in terminal                               | `glow project-brief.md`            |
-| `dog`    | DNS lookup tool with modern interface                      | `dog example.com`                   |
 | `hyperfine` | Benchmark CLI commands                                  | `hyperfine 'cargo build'`          |
-| `zx`     | Shell scripting with JavaScript                            | `zx scripts/setup.mjs`             |
+| `zoxide` | Smarter `cd` alternative with tracking                     | `z oxide add ~/project && z project`|
 
 ---
 
@@ -33,6 +37,8 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 | `trivy`      | Security scan for Docker images & codebases        | `trivy image node:18`         |
 | `lazydocker` | Terminal UI for Docker container management        | `lazydocker`                  |
 
+> ℹ️ `Docker Desktop` or `Colima` is recommended for runtime support. This setup checks for Desktop presence and suggests `colima` if not detected.
+
 ---
 
 ### 🦀 Rust Tooling
@@ -41,12 +47,11 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 |------------------|---------------------------------------------------|-----------------------------------|
 | `rustup`         | Install/manage Rust versions                      | `rustup update`                   |
 | `cargo-edit`     | Add, remove, upgrade dependencies in `Cargo.toml` | `cargo add tokio`                 |
-| `cargo-generate` | Template-based project scaffolding                | `cargo generate ...`              |
 | `cargo-nextest`  | Fast and isolated test runner                     | `cargo nextest run`               |
 | `clippy`         | Rust linter for idiomatic suggestions             | `cargo clippy`                    |
 | `rustfmt`        | Code formatter for Rust                           | `cargo fmt`                       |
 
-> 🧠 Note: `burn`, `candle`, `llama.cpp`, `Axum`, and `rusqlite` are used in project code and managed in `Cargo.toml`, not installed globally.
+> 🧠 Note: Project dependencies like `burn`, `candle`, `llama.cpp`, `Axum`, and `rusqlite` are managed in `Cargo.toml`, not installed globally.
 
 ---
 
@@ -56,12 +61,12 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 |--------------------|-------------------------------------------------|---------------------------------|
 | `volta`            | Node toolchain manager                          | `volta install node`            |
 | `pnpm`             | Fast and efficient package manager              | `pnpm install`                  |
+| `npm-check-updates`| Upgrade deps based on semver rules              | `ncu -u && pnpm install`        |
 | `biome`            | Linter/formatter for JS/TS                      | `biome check .`                 |
 | `vitest`           | Unit testing framework                          | `pnpm test`                     |
 | `playwright`       | E2E testing + browser automation (per project)  | `npx playwright install`        |
 | `workbox-cli`      | Generate service workers for PWAs               | `workbox generateSW`            |
 | `@lhci/cli`        | Performance auditing (Lighthouse CI)            | `lhci autorun`                  |
-| `npm-check-updates`| Upgrade deps based on semver rules              | `ncu -u && pnpm install`        |
 
 ---
 
@@ -69,11 +74,8 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 
 | Tool           | Purpose                                      | Example Usage                  |
 |----------------|----------------------------------------------|--------------------------------|
-| `golangci-lint`| Go linting framework                         | `golangci-lint run`            |
 | `semgrep`      | Static analysis & vulnerability scanner      | `semgrep --config=auto .`      |
 
 ---
 
-> 💡 Agents and developers should use these tools consistently across all automation, linting, scaffolding, and CI pipelines. Prefer the `just` task runner to wrap multi-step commands.
-
-
+> 💡 Agents and developers should use these tools consistently across all automation, linting, scaffolding, and CI pipelines. Prefer the `just` task runner to wrap multi-step commands and reduce cognitive load.

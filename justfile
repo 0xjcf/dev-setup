@@ -15,7 +15,7 @@ bootstrap:
 
 # Preview tool documentation for agents
 ai-docs:
-  bat ../dev-setup/.cursor/tools.md
+  bat ../dev-setup/.cursor/tools.mdc
 
 # Open dev-setup docs in glow (Markdown viewer)
 view-readme:
