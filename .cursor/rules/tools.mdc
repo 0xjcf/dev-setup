@@ -3,11 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
----
-description: 
-globs: 
-alwaysApply: true
----
 ### 📘 Purpose:
 This file is a guide for AI agents (and developers) working within a Cursor environment. It documents the tools available in this system, how they're used, and when to invoke them.
 
@@ -95,4 +90,5 @@ This file is a guide for AI agents (and developers) working within a Cursor envi
 
 > 💡 Agents and developers should use these tools consistently across all automation, linting, scaffolding, and CI pipelines. Prefer the `just` task runner to wrap multi-step commands and reduce cognitive load.
 > 🔧 Some tools like `playwright`, `biome`, and `@lhci/cli` are installed per-project via `bootstrap.sh`, not globally.
+
 

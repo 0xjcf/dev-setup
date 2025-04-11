@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "tech": "node",
+    "class": "api",
+    "version": "1.0.0",
+    "description": "Node.js API project template",
+    "variables": {
+      "project_name": {
+        "type": "string",
+        "required": true,
+        "description": "Name of the project"
+      },
+      "version": {
+        "type": "string",
+        "required": true,
+        "default": "1.0.0",
+        "description": "Project version"
+      },
+      "port": {
+        "type": "number",
+        "required": false,
+        "default": 3000,
+        "description": "Port number for the API"
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "package.json",
+      "template": "package.json.tpl",
+      "variables": ["project_name", "version"]
+    },
+    {
+      "path": "tsconfig.json",
+      "template": "tsconfig.json.tpl"
+    },
+    {
+      "path": "src/index.ts",
+      "template": "src/index.ts.tpl",
+      "variables": ["port"]
+    },
+    {
+      "path": "test/index.test.ts",
+      "template": "test/index.test.ts.tpl",
+      "variables": ["project_name"]
+    }
+  ]
+} 

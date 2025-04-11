@@ -22,7 +22,7 @@ fi
 
 # 2. CLI Tools
 step $CURRENT_STEP "Installing CLI tools with Homebrew"
-cli_tools=(bat ripgrep fzf gh direnv just eza tokei jq glow hyperfine dive trivy go zoxide zsh-autosuggestions zsh-syntax-highlighting semgrep lazydocker pkgconf openssl@3)
+cli_tools=(bat ripgrep fzf gh direnv just eza tokei jq glow hyperfine dive trivy go zoxide zsh-autosuggestions zsh-syntax-highlighting semgrep lazydocker pkgconf openssl@3 sqlite python3)
 for tool in "${cli_tools[@]}"; do
   if brew list "$tool" &>/dev/null || brew list --cask "$tool" &>/dev/null; then
     echo "✅ $tool already installed"
@@ -167,10 +167,12 @@ else
 fi
 
 # Ensure Ollama is running
-if curl -s http://localhost:11434/api/tags &>/dev/null; then
-  echo "✅ Ollama service is up and running."
+if pgrep -f "ollama serve" >/dev/null; then
+  echo "✅ Ollama service already running"
+elif curl -s http://localhost:11434/api/tags &>/dev/null; then
+  echo "✅ Ollama service is up and responding"
 else
-  echo "⚠️ Ollama installed but service not responding. Attempting to start it now..."
+  echo "⚙️ Starting Ollama in background..."
   nohup ollama serve >/dev/null 2>&1 &
   sleep 2
   if curl -s http://localhost:11434/api/tags &>/dev/null; then

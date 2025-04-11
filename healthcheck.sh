@@ -96,6 +96,16 @@ check_node_tool "node" "node"
 check_node_tool "pnpm" "pnpm"
 check_node_tool "volta" "volta"
 
+# SQLite & Python
+check_tool "sqlite3" "sqlite3"
+if brew list sqlite &>/dev/null; then
+  $JSON && OUTPUT+="\n  \"sqlite\": \"ok\"," || $QUIET || echo "✅ sqlite (library) is installed"
+else
+  $JSON && OUTPUT+="\n  \"sqlite\": \"fail\"," || $QUIET || echo "❌ sqlite (library) is NOT installed"
+  FAIL=1
+fi
+check_tool "python3" "python3"
+
 # Docker
 check_tool "docker" "docker"
 if docker compose version &>/dev/null; then
