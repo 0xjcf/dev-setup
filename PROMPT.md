@@ -22,21 +22,21 @@ This document serves as the master guide for developing the Universal Bootstrapp
 
 2. ⏳ Node.js Templates
    - ✅ API project template
-   - ✅ [UI project template](prompts/node/ui-scaffold.md)
-   - ✅ [Library template](prompts/node/lib-scaffold.md)
-   - ✅ [CLI template](prompts/node/cli-scaffold.md)
+   - ⏳ UI project template
+   - ⏳ Library template
+   - ⏳ CLI template
 
 3. ⏳ Rust Templates
-   - ✅ [Agent template](prompts/rust/agent-scaffold.md)
-   - ✅ [API template](prompts/rust/api-scaffold.md)
-   - ✅ [Library template](prompts/rust/lib-scaffold.md)
-   - ✅ [CLI template](prompts/rust/cli-scaffold.md)
+   - ⏳ Agent template
+   - ⏳ API template
+   - ⏳ Library template
+   - ⏳ CLI template
 
 4. ⏳ Go Templates
-   - ✅ [API template](prompts/go/api-scaffold.md)
-   - ✅ [Library template](prompts/go/lib-scaffold.md)
-   - ✅ [CLI template](prompts/go/cli-scaffold.md)
-   - ✅ [Agent template](prompts/go/agent-scaffold.md)
+   - ⏳ API template
+   - ⏳ Library template
+   - ⏳ CLI template
+   - ⏳ Agent template
 
 ### Phase 2: Project Generation 🔜
 **Goal**: Implement robust project generation with proper validation and testing.

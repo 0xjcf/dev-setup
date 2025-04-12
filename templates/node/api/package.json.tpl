@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "vitest",
+    "test": "vitest run",
     "lint": "biome check --apply .",
     "build": "tsc",
     "start": "node dist/index.js",

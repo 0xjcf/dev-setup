@@ -156,6 +156,10 @@ if volta list pnpm | grep -q 'pnpm'; then
 else
   VOLTA_FEATURE_PNPM=1 volta install pnpm@latest
 fi
+
+# Install development tools
+echo "📦 Installing development tools..."
+npm install -g @mermaid-js/mermaid-cli
 ((CURRENT_STEP++))
 
 # 13. Ollama (local LLM server)
