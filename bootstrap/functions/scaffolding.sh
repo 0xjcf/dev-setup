@@ -144,14 +144,113 @@ EOF
       esac
       ;; # End node case
     rust)
-      # ... Apply heredoc pattern for Rust cases ...
-      log_warning "⚠️ Rust justfile generation using heredoc not fully implemented yet."
-      # Ensure file is created even if content is basic
-      cat << EOF > "$justfile_path"
+      # Use heredoc pattern for Rust cases
+      case "$class" in
+        agent)
+          cat << EOF > "$justfile_path"
+# Rust Agent project tasks
+default:
+  @just --list
+
+dev:
+  @cargo run
+
+test:
+  @cargo nextest run # Use nextest if available
+
+lint:
+  @cargo clippy --all-targets -- -D warnings
+
+build:
+  @cargo build --release
+EOF
+          ;;
+        api)
+          cat << EOF > "$justfile_path"
+# Rust API project tasks
+default:
+  @just --list
+
+dev:
+  @cargo run
+
+test:
+  @cargo nextest run
+
+lint:
+  @cargo clippy --all-targets -- -D warnings
+
+build:
+  @cargo build --release
+
+# --- Docker Commands ---
+build-docker:
+  @docker build -t $project_name -f docker/Dockerfile .
+
+dev-docker:
+  @docker compose -f docker/docker-compose.yml up --build -d
+  @echo "Container started in detached mode. Following logs (Ctrl+C to stop logs)..."
+  @docker compose -f docker/docker-compose.yml logs --follow $project_name # Use project_name as service name?
+
+test-docker:
+  @echo "Docker tests not implemented for Rust API yet."
+  # @docker compose -f docker/docker-compose.yml run --rm $project_name cargo nextest run
+
+stop-docker:
+  @docker compose -f docker/docker-compose.yml down
+EOF
+          ;;
+        cli)
+          cat << EOF > "$justfile_path"
+# Rust CLI project tasks
+default:
+  @just --list
+
+dev:
+  @cargo run -- --help # Example: run with help flag
+
+test:
+  @cargo nextest run
+
+lint:
+  @cargo clippy --all-targets -- -D warnings
+
+build:
+  @cargo build --release
+
+install:
+  @cargo install --path .
+EOF
+          ;;
+        lib)
+          cat << EOF > "$justfile_path"
+# Rust Library project tasks
+default:
+  @just --list
+
+test:
+  @cargo nextest run
+
+lint:
+  @cargo clippy --all-targets -- -D warnings
+
+build:
+  @cargo build --release
+
+publish:
+  # Ensure you are logged in: cargo login [token]
+  @cargo publish
+EOF
+          ;;
+        *)
+          log_warning "⚠️ No specific Rust justfile template found for class $class"
+          cat << EOF > "$justfile_path"
 # Default tasks for Rust project
 default:
   @just --list
 EOF
+          ;;
+      esac
       ;; # End rust case
     go)
       # ... Apply heredoc pattern for Go cases ...
@@ -233,24 +332,69 @@ generate_meta_json() {
 
 # Process templates based on a metadata.json manifest in the template source dir
 process_templates() {
-  local dir=$1 # Target project directory (passed correctly)
-  local tech=$2
-  local class=$3
-  # Framework argument needed later for UI projects
-  # local framework=$4 
+  local dir="$1"
+  local tech="$2"
+  local class="$3"
+  local framework="$4" # Capture framework if passed (for UI projects)
   
-  # Construct path to the template manifest
-  # Assumes SCRIPT_DIR points to the main script's dir (dev-setup/)
-  local meta_file="$SCRIPT_DIR/bootstrap/templates/$tech/$class/metadata.json"
+  log_header "Processing Templates"
+  log_info "Directory: $dir"
+  log_info "Technology: $tech"
+  log_info "Class: $class"
+  [[ -n "$framework" ]] && log_info "Framework: $framework"
   
+  # --- Update package.json lint script FIRST if it exists ---
+  # This needs to happen before template processing might overwrite package.json
+  # or before finalize steps run install/lint
+  local target_pkg_json="$dir/package.json"
+  if [[ -f "$target_pkg_json" && ("$tech" == "node" || "$tech" == "electron") ]]; then
+      log_info "Found package.json in target. Updating lint script to use Biome..."
+      # Use jq to update the scripts.lint entry. Create scripts object if it doesn't exist.
+      # Read file, update, write to temp, then move temp to original
+      local temp_pkg_json="${target_pkg_json}.tmp"
+      if run_or_dry jq '( .scripts.lint = "biome check ." )' "$target_pkg_json" > "$temp_pkg_json" && run_or_dry mv "$temp_pkg_json" "$target_pkg_json"; then
+          log_success "Successfully updated package.json lint script."
+      else
+          log_warning "Failed to update package.json lint script using jq. Linting might not work as expected."
+          # Clean up temp file if mv failed
+          [ -f "$temp_pkg_json" ] && run_or_dry rm "$temp_pkg_json"
+      fi
+  fi
+  # --- END package.json update ---
+
+  # Determine template source directory based on tech and class
+  # Base path without framework consideration first
+  local template_base_dir="$SCRIPT_DIR/../bootstrap/templates/$tech/$class"
+  local meta_file="$template_base_dir/metadata.json"
+  local use_framework_templates=false
+
+  # For UI projects with frameworks, check if we need to use a framework-specific path
+  if [[ "$class" == "ui" && -n "$framework" ]]; then
+    # Construct the framework-specific path
+    local framework_template_base_dir="$SCRIPT_DIR/../bootstrap/templates/$tech/$framework"
+    local framework_meta_file="$framework_template_base_dir/metadata.json"
+    
+    # Check if framework-specific templates exist (check for the metadata file)
+    if [[ -f "$framework_meta_file" ]]; then
+      meta_file="$framework_meta_file"
+      template_base_dir="$framework_template_base_dir"
+      use_framework_templates=true
+      log_info "📁 Using framework-specific templates: $template_base_dir"
+    else
+      log_info "Framework-specific templates not found at $framework_template_base_dir. Using base $tech/$class templates."
+    fi
+  fi
+
+  # Now, check if the selected meta_file exists
+  if [[ ! -f "$meta_file" ]]; then
+    log_info "No template manifest found at $meta_file. Skipping template processing."
+    # If we expected framework templates but didn't find them, maybe fall back?
+    # For now, just skip if the selected meta_file doesn't exist.
+    return 0
+  fi
+
   log_info "📁 Processing templates using manifest: $meta_file"
   log_info "   Target directory: $dir"
-  
-  if [[ ! -f "$meta_file" ]]; then
-    log_error "❌ Template manifest file not found: $meta_file"
-    # Decide if this is a fatal error or just a warning
-    return 1 # Returning error for now
-  fi
   
   # Read variables needed for templates (can be extended)
   local project_name
@@ -258,7 +402,8 @@ process_templates() {
   local version="1.0.0"         # Default version
   local port="3000"             # Default port (for node api/ui)
   local description="A $tech $class project" # Add description
-  
+  [[ -n "$framework" ]] && description="A $framework $tech $class project"
+
   # Calculate entry_point based on tech/class (same logic as generate_meta_json)
   local entry_point=""
   case "$tech" in
@@ -291,7 +436,7 @@ process_templates() {
   
   # Process each file entry defined in the template metadata.json
   # Using jq to iterate over the '.files' array
-  jq -c '.files[]' "$meta_file" | while IFS= read -r file_entry; do
+  if ! jq -c '.files[]' "$meta_file" | while IFS= read -r file_entry; do
     local path
     local template
     local vars_json
@@ -307,50 +452,55 @@ process_templates() {
         continue
     fi
 
-    local template_source_path="$SCRIPT_DIR/bootstrap/templates/$tech/$class/$template"
+    # Use template_base_dir instead of hardcoded path
+    local template_source_path="$template_base_dir/$template"
     local output_target_path="$dir/$path"
     
     # Special handling for Docker files - keep them in a docker subdirectory
-    if [[ "$template" == *"docker/"* ]]; then
+    if [[ "$template" == *"docker/"* || "$path" == "Dockerfile" || "$path" == "docker-compose.yml" ]]; then
         # Ensure docker subdirectory exists
-        mkdir -p "$dir/docker"
+        run_or_dry mkdir -p "$dir/docker"
         # If the output is going to root, redirect to docker subdirectory
         if [[ "$(dirname "$path")" == "." ]]; then
             output_target_path="$dir/docker/$(basename "$path")"
-            log_info "      -> Docker file redirected to docker subdirectory: $output_target_path"
+            log_debug "      -> Docker file redirected to docker subdirectory: $output_target_path"
+        else
+            # If the path already includes 'docker/', ensure the parent dir exists
+            run_or_dry mkdir -p "$(dirname "$output_target_path")"
         fi
+    else
+        # Ensure the parent directory exists for non-docker files
+        run_or_dry mkdir -p "$(dirname "$output_target_path")"
     fi
     
-    log_info "   📄 Processing template: $template_source_path -> $output_target_path"
+    log_debug "   📄 Processing template: $template_source_path -> $output_target_path"
     
     # Build variables string for process_template function
     local var_string=""
     local var
     # Read variables from the JSON array
     while IFS= read -r var; do
-      # Remove quotes added by jq -c
+      # Remove quotes added by jq -r
       local clean_var=${var//\"/}
       case "$clean_var" in
-        project_name) var_string+="project_name=$project_name " ;;
-        version) var_string+="version=$version " ;;
-        port) var_string+="port=$port " ;;
-        description) var_string+="description=$description " ;; # Add description variable
-        entry_point) var_string+="entry_point=$entry_point " ;; # Add entry_point variable
+        project_name) var_string+="project_name=$project_name " ;; 
+        version) var_string+="version=$version " ;; 
+        port) var_string+="port=$port " ;; 
+        description) var_string+="description=$description " ;; # Don't add quotes here, template should have them
+        entry_point) var_string+="entry_point=$entry_point " ;; 
         # Add more potential variables here
         *) log_warning "   -> Ignoring unknown variable '$clean_var' defined in metadata.json" ;;
       esac
     done < <(echo "$vars_json" | jq -r '.[]') # Use jq -r to get raw strings
     
-    log_info "      -> Variables: ${var_string:-<none>}"
+    log_debug "      -> Variables: ${var_string:-<none>}"
     
     # Call the helper to copy and process the single template file
     process_template "$template_source_path" "$output_target_path" "$var_string"
-  done
-  
-  # Check exit status of jq pipe - important for catching parsing errors
-  local pipe_status=${PIPESTATUS[0]}
-  if [[ $pipe_status -ne 0 ]]; then
-      log_error "❌ Error processing template manifest $meta_file (jq exit status: $pipe_status)"
+  done; then
+      # Check exit status of the pipeline (specifically the while loop or process_template inside)
+      # PIPESTATUS only works directly after the pipeline
+      log_error "❌ Error occurred during template file processing loop for $meta_file"
       return 1
   fi
 
@@ -359,27 +509,24 @@ process_templates() {
   # --- Generate .env file --- #
   # Place it in the docker subdirectory so docker-compose -f finds it
   local env_file="$dir/docker/.env"
-  log_info "   📝 Generating default .env file: $env_file"
+  log_debug "   📝 Generating default .env file: $env_file"
   # Ensure the docker directory exists first
-  mkdir -p "$dir/docker"
+  run_or_dry mkdir -p "$dir/docker"
   # Define default variables - port is needed by docker-compose
-  cat << EOF > "$env_file"
-# Environment variables for $project_name (used by docker-compose)
-port=$port
-# Add other environment variables as needed
-EOF
-  if [[ $? -ne 0 ]]; then
-      log_error "   ❌ Failed to generate .env file: $env_file"
+  # Use printf for better control over format and avoid issues with content
+  if ! run_or_dry printf '%s\n' "# Environment variables for $project_name (used by docker-compose)" "port=$port" "# Add other environment variables as needed" > "$env_file"; then
+      log_error "  Failed to generate .env file: $env_file"
       # Decide if this is fatal
   else
-      log_success "   ✅ Generated .env file."
+      log_debug "Generated .env file."
   fi
   # --- End Generate .env file ---
 
   return 0
 }
 
-# Process a single template file: copy and substitute variables
+# Helper function to process a single template file
+# Copies the file and replaces placeholders like {{variable_name}}
 process_template() {
   local template_source=$1
   local output_target=$2 # Already absolute/correct path
@@ -437,7 +584,7 @@ process_template() {
   # Special handling for package.json dependencies - Consider moving this
   # into a separate function or handling it during merge phase for UI
   if [[ "$template_source" == *"package.json.tpl" ]]; then
-    log_info "      -> Performing package.json specific substitutions..."
+    log_debug "      -> Performing package.json specific substitutions..."
     # This is basic and might be insufficient for complex package.json generation
     # Consider using jq for more robust package.json manipulation later
     local express_version=$(get_latest_version express)
@@ -455,11 +602,6 @@ process_template() {
     sed -i '' "s|{{devDependencies.tsx}}|^${tsx_version}|g" "$output_target"
     sed -i '' "s|{{devDependencies.vitest}}|^${vitest_version}|g" "$output_target"
     sed -i '' "s|{{devDependencies.biome}}|^${biome_version}|g" "$output_target"
-    # Remove potentially unused placeholders if any remain
-    sed -i '' 's/{{[^{}]*}}//g' "$output_target"
-    # Also handle any remaining ${variable} placeholders - use double backslash to escape $ for sed
-    sed -i '' 's/\${[^}]*}//g' "$output_target"
-
   fi
   
   return 0

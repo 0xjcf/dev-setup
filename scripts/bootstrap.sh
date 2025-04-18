@@ -6,16 +6,16 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source utility functions (now includes new log functions)
-source "$SCRIPT_DIR/bootstrap/utils/common.sh"
+source "$SCRIPT_DIR/../bootstrap/utils/common.sh"
 
 # Source function scripts
-source "$SCRIPT_DIR/bootstrap/functions/selection.sh"
-source "$SCRIPT_DIR/bootstrap/functions/config.sh"
-source "$SCRIPT_DIR/bootstrap/functions/scaffolding.sh"
+source "$SCRIPT_DIR/../bootstrap/functions/selection.sh"
+source "$SCRIPT_DIR/../bootstrap/functions/config.sh"
+source "$SCRIPT_DIR/../bootstrap/functions/scaffolding.sh"
 
 # Source tech-specific setup scripts
-source "$SCRIPT_DIR/bootstrap/tech-setup/node.sh"
-# source "$SCRIPT_DIR/bootstrap/tech-setup/rust.sh" # Add later
+source "$SCRIPT_DIR/../bootstrap/tech-setup/node.sh"
+source "$SCRIPT_DIR/../bootstrap/tech-setup/rust.sh" # Add later
 # source "$SCRIPT_DIR/bootstrap/tech-setup/go.sh"   # Add later
 
 # ------------------------------------------------------
@@ -80,41 +80,50 @@ scaffold_project() {
   local dir=$1 tech=$2 class=$3 framework=$4
   log_header "Scaffolding Project"
   log_info "Directory: $dir"
-  log_info "Tech: $tech"
-  log_info "Class: $class"
-  log_info "Framework: ${framework:-N/A}"
 
-  # Use run_or_dry for safety
+  # Ensure target directory exists, but don't error if it does (CLI tools might create it)
   run_or_dry mkdir -p "$dir"
-
-  process_templates "$dir" "$tech" "$class" # "$framework"
+  
+  # --- Phase 1: Base Scaffolding (CLI tools for UI, templates otherwise) ---
+  if [[ "$tech" == "node" && "$class" == "ui" && -n "$framework" ]]; then
+    log_info "UI project with framework detected. Running base scaffolder first..."
+    # Call the base scaffolder for UI projects
+    skaffold_node_ui_base "$dir" "$framework" # Pass only dir and framework
+    local base_status=$?
+    if [[ $base_status -ne 0 ]]; then
+       log_error "Failed during initial Node.js UI base scaffolding for framework $framework."
+       return 1
+    fi
+  fi
+  
+  # --- Phase 2: Apply Custom Templates ---
+  # This runs for ALL project types, overlaying our specific files
+  process_templates "$dir" "$tech" "$class" "$framework"
   local process_status=$?
   if [[ $process_status -ne 0 ]]; then
     log_error "Failed during template processing."
     return 1
   fi
 
-  # --- Call Tech-Specific Setup --- # Should use log_header internally
+  # --- Phase 3: Final Setup (Install deps, Biome, etc.) ---
+  log_info "Running final setup phase for $tech project..."
   if [[ "$tech" == "node" ]]; then
-    setup_node_project "$dir" "$class" # Call function from tech-setup/node.sh
+    finalize_node_setup "$dir" "$class" "$framework" # Call the new finalizer
   elif [[ "$tech" == "rust" ]]; then
-    # setup_rust_project "$dir" "$class" # Call later
-    log_warning "Rust setup not yet implemented."
+    finalize_rust_setup "$dir" "$class" # Call the Rust finalizer
+    # log_warning "Rust final setup not yet implemented."
   elif [[ "$tech" == "go" ]]; then
-    # setup_go_project "$dir" "$class"   # Call later
-    log_warning "Go setup not yet implemented."
-  else
-     log_error "Unknown tech '$tech'. Skipping tech-specific setup."
-     return 1 # Treat unknown tech as an error
+    # setup_go_project "$dir" "$class"   # Placeholder for Go final setup
+    log_warning "Go final setup not yet implemented."
+  # No final 'else' needed here; if tech isn't matched, we just finish.
   fi
-  local setup_status=$?
-  if [[ $setup_status -ne 0 ]]; then
-     log_error "Failed during tech-specific setup for $tech."
+  local final_status=$?
+  if [[ $final_status -ne 0 ]]; then
+     log_error "Failed during final setup phase for $tech."
      return 1
   fi
-  # --- End Tech-Specific Setup ---
+  # --- End Final Setup ---
 
-  log_info "Finished scaffolding steps."
   return 0
 }
 
@@ -215,7 +224,8 @@ run_bootstrap_for_dir() {
      # Trap will still cd back
      return 1
   else
-     log_success "Finished bootstrapping: $project_name"
+     # Let the main function handle the final overall success message
+     : # No-op, or could log specific dir success here if needed
   fi
 }
 
@@ -250,6 +260,7 @@ main() {
     run_bootstrap_for_dir "$TARGET_DIR" "$TECH" "$CLASS" "$FRAMEWORK"
   fi
 
+  log_success "🚀 Universal Bootstrapper finished successfully!"
   log_debug "Exiting main function"
 }
 
