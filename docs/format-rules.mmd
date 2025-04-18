@@ -1,0 +1,17 @@
+graph TD
+    A[Format Rules] --> B1[Indentation]
+    A --> B2[Line Endings]
+    A --> B3[Import Order]
+    A --> B4[Variable Syntax]
+    
+    B1 --> C1[Spaces Only]
+    B1 --> C2[2 Space Indent]
+    
+    B2 --> D1[LF Endings]
+    D1 --> D2[Trailing Newline]
+    
+    B3 --> E1[External First]
+    E1 --> E2[Internal Last]
+    
+    B4 --> F1[{{variable}}]
+    F4 --> F2[No Spaces in Vars]

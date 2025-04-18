@@ -82,7 +82,7 @@ Cursor AI agents automatically reference `.cursor/tools.mdc` to:
 | ✅ **Dev UX** | Clear, contextual prompts, progress messages, rich logging — friendly for both humans and AI agents. |
 | ✅ **Dry Run Support** | Consistent use of `run_or_dry` gives safe preview mode — critical for CI/CD pipelines and AI use. |
 | ✅ **Toolchain Awareness** | Smart setup hooks per language (Node, Rust, Go) with validation and messaging. |
-| ✅ **Context Generation** | `.meta.json` and `.cursor/tools.mdc` enable IDEs, AI agents, and future auto-documentation. |
+| ✅ **Context Generation** | `.metadata.json` and `.cursor/tools.mdc` enable IDEs, AI agents, and future auto-documentation. |
 | ✅ **AI-Aware Monorepo Justfile** | Rich monorepo task definitions (`audit`, `check`, `dev`, `test`, `clean`, etc.) — ideal for multi-agent orchestration. |
 | ✅ **Scaffold Quality** | Every scaffold includes test files, entry points, health checks, and a clean README. No dead code. No noise. |
 

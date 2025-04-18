@@ -1,13 +1,14 @@
 services:
   api:
     build:
-      context: .
+      context: ..
+      dockerfile: docker/Dockerfile
       target: development
     ports:
       - "${port}:${port}"
     volumes:
       # Mount host code for development hot-reloading
-      - .:/app
+      - ../:/app
       # Use anonymous volume to avoid host node_modules overwriting container's
       - /app/node_modules
     environment:
@@ -17,7 +18,8 @@ services:
 
   test:
     build:
-      context: .
+      context: ..
+      dockerfile: docker/Dockerfile
       target: test
     # No volumes needed - use code copied into the image during build
     environment:
@@ -34,12 +36,13 @@ services:
 
   test-watch:
     build:
-      context: .
-      target: test # Reuse test stage build
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: test
     volumes:
       # Mount host code for watching changes
-      - ./src:/app/src
-      - ./test:/app/test
+      - ../src:/app/src
+      - ../test:/app/test
       # Keep node_modules isolated in container
       - /app/node_modules
     environment:
@@ -50,10 +53,12 @@ services:
 
   debug:
     build:
-      context: .
+      context: ..
+      dockerfile: docker/Dockerfile
       target: test
     volumes:
-      - .:/app
+      # Paths are relative to the docker-compose.yml file's location
+      - ../:/app
       - /app/node_modules
     environment:
       - NODE_ENV=test

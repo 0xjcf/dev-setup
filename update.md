@@ -52,7 +52,7 @@ log() {
 # config.sh
 parse_ui_meta_json() {
     local framework_key=$1
-    local meta_file="$SCRIPT_DIR/templates/node/ui/meta.json"
+    local meta_file="$SCRIPT_DIR/templates/node/ui/metadata.json"
     
     # Use associative array for configuration
     declare -A config
