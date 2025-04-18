@@ -92,29 +92,29 @@ bootstrap-rust-agent:
 # These tasks now run bootstrap.sh with --run-tests, which includes cleaning.
 
 # Test specific Node.js project types
-int-test-node-api:
+i-test-node-api:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
 
 # Add recipes for the current UI scaffolds
-int-test-node-ui-next:
+i-test-node-ui-next:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
-int-test-node-ui-vite:
+i-test-node-ui-vite:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
 
 # Test specific Rust project types
-int-test-rust-cli:
+i-test-rust-cli:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class cli --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
 
 # Add recipe for rust-agent
-int-test-rust-agent:
+i-test-rust-agent:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class agent --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
 
-int-test-rust-api:
+i-test-rust-api:
     @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
 
 # Run all bootstrap tests
 # This runs the actual test suites *within* each bootstrapped project
-test-all: int-test-node-api int-test-node-ui-next int-test-node-ui-vite int-test-rust-cli int-test-rust-agent int-test-rust-api
+test-all: i-test-node-api i-test-node-ui-next i-test-node-ui-vite i-test-rust-cli i-test-rust-agent i-test-rust-api
 
 # Run the comprehensive scaffold test script
 test-scaffolds:

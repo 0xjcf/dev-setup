@@ -5,7 +5,6 @@ This repository contains the setup scripts and automation tasks to bootstrap and
 - Global system-level tooling (`setup.sh`)
 - Per-project bootstrapping (`bootstrap.sh`)
 - Post-install integrity checks (`healthcheck.sh`)
-- AI/agent-readable toolchain reference (`.cursor/tools.mdc`)
 - Task automation via `justfile`
 
 ---
@@ -14,13 +13,17 @@ This repository contains the setup scripts and automation tasks to bootstrap and
 
 ```
 dev-setup/
-├── setup.sh           # Run once to install your global dev stack
-├── bootstrap.sh       # Run from any project root to configure that project
-├── healthcheck.sh     # Run after setup to verify all tools are installed
-├── justfile           # Task runner for setup/bootstrap/dev ops
-├── .cursor/
-│   └── tools.mdc      # Tool manifest for Cursor and AI agents
-└── README.md          # You are here
+├── bootstrap/       # Core bootstrapping logic, templates, functions
+├── docs/            # Additional documentation
+├── prompts/         # Scaffold definition prompts
+├── scripts/         # Main executable scripts
+│   ├── setup.sh         # Installs global dev stack
+│   ├── bootstrap.sh     # Bootstraps projects
+│   └── healthcheck.sh   # Verifies tool installation
+├── .envrc           # Direnv environment variables
+├── justfile         # Task runner definitions
+├── README.md        # This file
+└── PROMPT.md        # (Optional: Main prompt definition?)
 ```
 
 ---
@@ -38,19 +41,63 @@ dev-setup/
 ```
 
 ### 3. Bootstrap a project:
-From any project root:
+
+**Primary Use:** Generate standardized test projects or bootstrap from a configuration file.
+
+From the `dev-setup` directory using `just` (recommended for test projects):
 ```bash
-~/dev-setup/bootstrap.sh
+# (Note: Recipes prefixed with 'i-' are integration tests that bootstrap a project)
+
+# Example: Bootstrap a Node.js Next.js UI project
+just i-test-node-ui-next
+
+# Example: Bootstrap a Rust API project
+just i-test-rust-api
 ```
 
-Or if you're using the `justfile`:
+**Directly (e.g., using a config file):**
 ```bash
-just bootstrap
+# From dev-setup
+./bootstrap.sh --config path/to/your/config.json
+```
+Example `config.json`:
+```json
+{
+  "projects": [
+    {
+      "path": "../my-cool-api",
+      "type": "node",
+      "class": "api"
+    },
+    {
+      "path": "../my-awesome-ui",
+      "type": "node",
+      "class": "ui"
+      # "framework": "next" // Framework currently set via flag, not config
+    },
+    {
+      "path": "../rust-agent-x",
+      "type": "rust",
+      "class": "agent"
+    }
+  ]
+}
 ```
 
-### 4. View tool documentation for AI agents:
 ```bash
-just ai-docs
+# Or specifying parameters individually
+./bootstrap.sh --target-dir ../path/to/new-project --tech=node --class=api
+```
+
+**From another project root (less common):**
+```bash
+~/dev-setup/bootstrap.sh # May require flags like --target-dir=.
+```
+
+### 4. View Project Documentation:
+```bash
+# View this README using glow (if installed)
+just docs 
 ```
 
 ---
@@ -74,17 +121,18 @@ Cursor AI agents automatically reference `.cursor/tools.mdc` to:
 
 ---
 
-## ✅ **What's Outstanding**
+## ✨ Key Features & Goals
 
-| Category | Strength |
-|---------|----------|
-| ✅ **Extensibility** | Dynamic handling for all supported tech stacks + project types (`api`, `ui`, `lib`, `cli`) with config support. |
-| ✅ **Dev UX** | Clear, contextual prompts, progress messages, rich logging — friendly for both humans and AI agents. |
-| ✅ **Dry Run Support** | Consistent use of `run_or_dry` gives safe preview mode — critical for CI/CD pipelines and AI use. |
-| ✅ **Toolchain Awareness** | Smart setup hooks per language (Node, Rust, Go) with validation and messaging. |
-| ✅ **Context Generation** | `.metadata.json` and `.cursor/tools.mdc` enable IDEs, AI agents, and future auto-documentation. |
-| ✅ **AI-Aware Monorepo Justfile** | Rich monorepo task definitions (`audit`, `check`, `dev`, `test`, `clean`, etc.) — ideal for multi-agent orchestration. |
-| ✅ **Scaffold Quality** | Every scaffold includes test files, entry points, health checks, and a clean README. No dead code. No noise. |
+| Category | Strength | Notes |
+|---------|----------|-------|
+| ✅ **Extensibility** | Dynamic handling for project types | Supports Node.js (API, UI-Next, UI-Vite), Rust (API, CLI, Agent). Go pending. Config file enables monorepo setup. |
+| ✅ **Dev UX** | Clear, contextual prompts | Rich logging, progress messages, human & AI friendly. |
+| ✅ **Dry Run Support** | Safe preview mode (`--dry-run`) | Consistent `run_or_dry` usage, vital for CI/CD and AI. |
+| ✅ **Toolchain Awareness** | Smart setup hooks per language | Includes validation and messaging for Node, Rust, Go (Go setup logic pending). |
+| ✅ **Context Generation** | Metadata and tool manifests | `.metadata.json` and `.cursor/tools.mdc` aid IDEs, AI agents, and future auto-docs. |
+| ✅ **AI-Aware Monorepo Justfile** | Rich task definitions | Includes `audit`, `check`, `dev`, `test`, `clean`, integration tests (`i-test-*`). |
+| ✅ **Scaffold Quality** | Production-ready starting points | Generates scaffolds with tests, entry points, health checks, Docker integration (Dockerfile, Compose), and clean READMEs. |
+| ✅ **Docker Integration** | Containerized dev/test environments | Most scaffolds include multi-stage Dockerfiles and docker-compose setups. |
 
 ---
 
@@ -96,3 +144,4 @@ Cursor AI agents automatically reference `.cursor/tools.mdc` to:
 - Use `direnv` with `.envrc` for per-project environment variables.
 
 Let this stack power your MVPs, AI agents, and client delivery workflows 💼⚡
+
