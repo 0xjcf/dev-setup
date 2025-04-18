@@ -6,7 +6,9 @@ ARG PORT=3000
 ENV PORT=$PORT
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
+# Force download during build to prevent runtime prompts
+RUN pnpm --version
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +33,9 @@ ARG PORT=3000
 ENV PORT=$PORT
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
+# Force download during build
+RUN pnpm --version
 
 # Set working directory
 WORKDIR /app
@@ -59,7 +63,9 @@ ARG PORT=3000
 ENV PORT=$PORT
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
+# Force download during build
+RUN pnpm --version
 
 # Set working directory
 WORKDIR /app
@@ -95,7 +101,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
+# Force download during build
+RUN pnpm --version
 
 # Set working directory
 WORKDIR /app

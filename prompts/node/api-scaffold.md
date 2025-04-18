@@ -56,7 +56,7 @@ Configuration files are provided as templates in the `templates/node/api/` direc
 - `templates/node/api/.gitignore.tpl`: Standard Node.js gitignore rules
 - `templates/node/api/docker/Dockerfile.tpl`: Docker configuration with:
   - Multi-stage builds (builder, production, development, test) based on `node:22-slim`
-  - Explicit `pnpm@8.15.4` installation
+  - Explicit `pnpm@10.8.1` installation
   - Optimized production image
   - Correct dependency installation for each stage
   - Hardcoded `EXPOSE 3000`

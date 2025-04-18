@@ -27,12 +27,12 @@
 			"variables": []
 		},
 		{
-			"path": "Dockerfile",
+			"path": "docker/Dockerfile",
 			"template": "docker/Dockerfile.tpl",
 			"variables": ["project_name", "port"]
 		},
 		{
-			"path": "docker-compose.yml",
+			"path": "docker/docker-compose.yml",
 			"template": "docker/docker-compose.yml.tpl",
 			"variables": ["project_name", "port"]
 		}

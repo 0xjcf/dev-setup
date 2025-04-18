@@ -3,8 +3,8 @@ services:
   dev:
     # Build using the main Dockerfile
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       # No specific target needed, relies on ENTRYPOINT/CMD override
     # Service name (used for linking if needed)
     container_name: ${project_name}_dev
@@ -17,8 +17,8 @@ services:
     ports:
       - "${PORT:-3000}:${PORT:-3000}" # Map host port to container port
     volumes:
-      # Mount source code for hot reloading
-      - ./src:/app/src
+      # Mount source code relative to the compose file location (../ means project root)
+      - ../src:/app/src
       # Keep target directory in a volume to avoid overwriting host
       - cargo-cache:/app/target 
       - cargo-registry:/usr/local/cargo/registry
@@ -40,8 +40,8 @@ services:
   test:
     # Build using the main Dockerfile, specifically the 'test' stage
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       target: test # Specify the test stage
     container_name: ${project_name}_test
     env_file:
@@ -50,11 +50,11 @@ services:
       - RUST_LOG=debug # Or specific test level
       - PORT=0 # Use random port for tests if app starts
     volumes:
-      # Mount source for tests
-      - ./src:/app/src
-      - ./tests:/app/tests
-      - ./Cargo.toml:/app/Cargo.toml
-      - ./Cargo.lock:/app/Cargo.lock
+      # Mount source/config files relative to the compose file location (../ means project root)
+      - ../src:/app/src
+      - ../tests:/app/tests
+      - ../Cargo.toml:/app/Cargo.toml
+      - ../Cargo.lock:/app/Cargo.lock
       - cargo-cache:/app/target 
       - cargo-registry:/usr/local/cargo/registry
     # Command to run tests

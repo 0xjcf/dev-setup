@@ -4,7 +4,7 @@ FROM node:22-slim AS builder
 WORKDIR /app
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
 
 # Copy package files and lockfile
 COPY package.json pnpm-lock.yaml ./
@@ -46,7 +46,7 @@ ENV PORT=$port
 WORKDIR /app
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
 
 # Copy package files and lockfile first
 COPY package.json pnpm-lock.yaml ./
@@ -73,7 +73,7 @@ FROM node:22-slim AS test
 WORKDIR /app
 
 # Install specific version of pnpm
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
 
 # Copy package files and lockfile first
 COPY package.json pnpm-lock.yaml ./

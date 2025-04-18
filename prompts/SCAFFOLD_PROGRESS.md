@@ -21,13 +21,13 @@ This file tracks the status of both the scaffold documentation prompts (`*.md`) 
 
 - **API (Axum) (`rust:api`)**
   - [x] Prompt: `rust/api-scaffold.md` (Created & Updated)
-  - [ ] Implementation: Needs verification after template path fixes.
+  - [x] Implementation: Fully implemented and tested.
 - **CLI (Clap) (`rust:cli`)**
   - [x] Prompt: `rust/cli-scaffold.md` (Created & Updated)
-  - [ ] Implementation: Needs verification after template path fixes.
+  - [x] Implementation: Fully implemented and tested.
 - **Agent (`rust:agent`)**
   - [x] Prompt: `rust/agent-scaffold.md` (Updated)
-  - [ ] Implementation: Needs verification after template path fixes.
+  - [x] Implementation: Fully implemented and tested.
 
 ## Go
 

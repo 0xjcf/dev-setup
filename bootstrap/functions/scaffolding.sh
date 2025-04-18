@@ -47,21 +47,21 @@ build:
 
 # --- Docker Commands ---
 # Build the docker image (using Dockerfile in ./docker/)
-build-docker:
+docker-build:
   docker build -t $project_name -f docker/Dockerfile .
 
 # Run the application in docker-compose (detached, using compose file in ./docker/)
-dev-docker:
+docker-dev:
   @docker compose -f docker/docker-compose.yml up --build -d api
   @echo "Container started in detached mode. Following logs (Ctrl+C to stop logs)..."
   @docker compose -f docker/docker-compose.yml logs --follow api
 
 # Run tests within the docker container (using compose file in ./docker/)
-test-docker:
+docker-test:
   @docker compose -f docker/docker-compose.yml run --rm api pnpm test
 
 # Stop docker-compose services (using compose file in ./docker/)
-stop-docker:
+docker-stop:
   @docker compose -f docker/docker-compose.yml down
 EOF
           ;;
@@ -86,7 +86,22 @@ build:
 
 audit:
   pnpm audit
-# Add relevant docker commands for UI if needed
+# --- Docker Commands (Example) ---
+# Build the docker image (Dockerfile often Multi-stage for UI)
+docker-build:
+  docker build -t $project_name -f docker/Dockerfile .
+
+docker-dev:
+  @echo "INFO: Running UI dev server often done locally via 'just dev'"
+  @echo "INFO: If using Docker, ensure docker-compose.yml exposes ports."
+  # @docker compose -f docker/docker-compose.yml up --build -d # Example
+
+docker-test:
+  @echo "INFO: Running UI tests often done locally via 'just test'"
+  # @docker compose -f docker/docker-compose.yml run --rm ui pnpm test # Example
+
+docker-stop:
+  # @docker compose -f docker/docker-compose.yml down # Example
 EOF
           ;;
         lib)
@@ -163,6 +178,21 @@ lint:
 
 build:
   @cargo build --release
+
+# --- Docker Commands ---
+docker-build:
+  @docker build -t $project_name -f docker/Dockerfile .
+
+docker-dev:
+  @docker compose -f docker/docker-compose.yml up --build -d
+  @echo "Container started in detached mode. Following logs (Ctrl+C to stop logs)..."
+  @docker compose -f docker/docker-compose.yml logs --follow dev
+
+docker-test:
+  @echo "Docker tests not typically run for agents this way."
+
+docker-stop:
+  @docker compose -f docker/docker-compose.yml down
 EOF
           ;;
         api)
@@ -184,19 +214,19 @@ build:
   @cargo build --release
 
 # --- Docker Commands ---
-build-docker:
+docker-build:
   @docker build -t $project_name -f docker/Dockerfile .
 
-dev-docker:
+docker-dev:
   @docker compose -f docker/docker-compose.yml up --build -d
   @echo "Container started in detached mode. Following logs (Ctrl+C to stop logs)..."
-  @docker compose -f docker/docker-compose.yml logs --follow $project_name # Use project_name as service name?
+  @docker compose -f docker/docker-compose.yml logs --follow dev
 
-test-docker:
+docker-test:
   @echo "Docker tests not implemented for Rust API yet."
   # @docker compose -f docker/docker-compose.yml run --rm $project_name cargo nextest run
 
-stop-docker:
+docker-stop:
   @docker compose -f docker/docker-compose.yml down
 EOF
           ;;
@@ -282,50 +312,6 @@ EOF
   # No need to return 1 here unless file generation is absolutely critical
 }
 
-generate_meta_json() {
-  local dir=$1 tech=$2 class=$3 # dir is the target directory
-  local entry_point=""
-
-  case "$tech" in
-    node)
-      case "$class" in
-        api|ui) entry_point="src/index.ts" ;; 
-        lib) entry_point="src/index.ts" ;;
-        cli) entry_point="src/cli.ts" ;; 
-        *) log "⚠️ Unknown node class: $class for meta entry point"; entry_point="src/index.js" ;; 
-      esac
-      ;;
-    rust)
-      case "$class" in
-        agent|api|cli) entry_point="src/main.rs" ;; 
-        lib) entry_point="src/lib.rs" ;;         
-        *) log "⚠️ Unknown rust class: $class for meta entry point"; entry_point="src/main.rs" ;; 
-      esac
-      ;;
-    go)
-      case "$class" in
-        agent|api|cli) entry_point="main.go" ;; 
-        lib) entry_point="lib.go" ;;        
-        *) log "⚠️ Unknown go class: $class for meta entry point"; entry_point="main.go" ;; 
-      esac
-      ;;
-    *) log "⚠️ Unknown tech: $tech for meta entry point" ;;
-  esac
-
-  # Use jq to create formatted JSON in the target directory
-  # Note: $dir should be the absolute path or relative to where jq is run
-  if jq -n \
-    --arg tech "$tech" \
-    --arg class "$class" \
-    --arg entry "$entry_point" \
-    '{ tech: $tech, class: $class, entry: $entry }' > "$dir/.metadata.json"; then
-    log_info "📝 Generated .metadata.json in $dir for $tech $class project"
-  else
-    log_error "❌ Failed to generate .metadata.json in $dir"
-    return 1 # Indicate failure
-  fi
-}
-
 # Get script directory (assuming scaffolding.sh is in functions/)
 # SCRIPT_DIR needs to be defined in the main bootstrap.sh or passed
 # For now, assuming SCRIPT_DIR is available globally or adjust as needed.
@@ -404,7 +390,7 @@ process_templates() {
   local description="A $tech $class project" # Add description
   [[ -n "$framework" ]] && description="A $framework $tech $class project"
 
-  # Calculate entry_point based on tech/class (same logic as generate_meta_json)
+  # Calculate entry_point based on tech/class
   local entry_point=""
   case "$tech" in
     node)
@@ -455,20 +441,40 @@ process_templates() {
     # Use template_base_dir instead of hardcoded path
     local template_source_path="$template_base_dir/$template"
     local output_target_path="$dir/$path"
+
+    # --- Skip Check ---
+    # If the target file already exists (likely created by a base scaffolder like create-next-app),
+    # skip processing specific config files to avoid overwriting potentially fine-tuned versions.
+    if [[ -f "$output_target_path" ]]; then
+      case "$path" in
+        # Add globals.css to the list of files to preserve if generated by create-next-app
+        tailwind.config.ts|postcss.config.mjs|next.config.mjs|next.config.ts|src/app/globals.css)
+          log_debug "   -> Skipping template processing for existing config/core file: $output_target_path"
+          continue # Skip to the next file in the loop
+          ;;
+      esac
+    fi
+    # --- End Skip Check ---
     
     # Special handling for Docker files - keep them in a docker subdirectory
-    if [[ "$template" == *"docker/"* || "$path" == "Dockerfile" || "$path" == "docker-compose.yml" ]]; then
-        # Ensure docker subdirectory exists
-        run_or_dry mkdir -p "$dir/docker"
-        # If the output is going to root, redirect to docker subdirectory
-        if [[ "$(dirname "$path")" == "." ]]; then
-            output_target_path="$dir/docker/$(basename "$path")"
-            log_debug "      -> Docker file redirected to docker subdirectory: $output_target_path"
-        else
-            # If the path already includes 'docker/', ensure the parent dir exists
-            run_or_dry mkdir -p "$(dirname "$output_target_path")"
-        fi
-    else
+    # Skip this entirely for rust/cli projects
+    if ! [[ "$tech" == "rust" && "$class" == "cli" ]]; then
+      if [[ "$template" == *"docker/"* || "$path" == "Dockerfile" || "$path" == "docker-compose.yml" ]]; then
+          # Ensure docker subdirectory exists
+          run_or_dry mkdir -p "$dir/docker"
+          # If the output is going to root, redirect to docker subdirectory
+          if [[ "$(dirname "$path")" == "." ]]; then
+              output_target_path="$dir/docker/$(basename "$path")"
+              log_debug "      -> Docker file redirected to docker subdirectory: $output_target_path"
+          else
+              # If the path already includes 'docker/', ensure the parent dir exists
+              run_or_dry mkdir -p "$(dirname "$output_target_path")"
+          fi
+      else
+          # Ensure the parent directory exists for non-docker files
+          run_or_dry mkdir -p "$(dirname "$output_target_path")"
+      fi
+    else # rust/cli case
         # Ensure the parent directory exists for non-docker files
         run_or_dry mkdir -p "$(dirname "$output_target_path")"
     fi
@@ -507,18 +513,21 @@ process_templates() {
   log_info "   ✅ Finished processing templates from $meta_file"
   
   # --- Generate .env file --- #
-  # Place it in the docker subdirectory so docker-compose -f finds it
-  local env_file="$dir/docker/.env"
-  log_debug "   📝 Generating default .env file: $env_file"
-  # Ensure the docker directory exists first
-  run_or_dry mkdir -p "$dir/docker"
-  # Define default variables - port is needed by docker-compose
-  # Use printf for better control over format and avoid issues with content
-  if ! run_or_dry printf '%s\n' "# Environment variables for $project_name (used by docker-compose)" "port=$port" "# Add other environment variables as needed" > "$env_file"; then
-      log_error "  Failed to generate .env file: $env_file"
-      # Decide if this is fatal
-  else
-      log_debug "Generated .env file."
+  # Skip for rust/cli projects
+  if ! [[ "$tech" == "rust" && "$class" == "cli" ]]; then
+    # Place it in the docker subdirectory so docker-compose -f finds it
+    local env_file="$dir/docker/.env"
+    log_debug "   📝 Generating default .env file: $env_file"
+    # Ensure the docker directory exists first
+    run_or_dry mkdir -p "$dir/docker"
+    # Define default variables - port is needed by docker-compose
+    # Use printf for better control over format and avoid issues with content
+    if ! run_or_dry printf '%s\n' "# Environment variables for $project_name (used by docker-compose)" "port=$port" "# Add other environment variables as needed" > "$env_file"; then
+        log_error "  Failed to generate .env file: $env_file"
+        # Decide if this is fatal
+    else
+        log_debug "Generated .env file."
+    fi
   fi
   # --- End Generate .env file ---
 

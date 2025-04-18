@@ -27,5 +27,5 @@
 		"supertest": "latest",
 		"@types/supertest": "latest"
 	},
-	"packageManager": "pnpm@8.15.4"
+	"packageManager": "pnpm@10.8.1"
 }

@@ -1,5 +1,5 @@
 // src/telemetry.rs.tpl
-use tracing_subscriber::{fmt, EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 /// Initializes the tracing subscriber based on verbosity level and RUST_LOG env var.
 pub fn init_tracing(verbosity: u8) {
@@ -24,4 +24,4 @@ pub fn init_tracing(verbosity: u8) {
         .init(); // Sets this subscriber as the global default
 
     tracing::debug!(level = ?log_level, verbosity, "Tracing initialized");
-} 
+}

@@ -4,8 +4,8 @@
 // See crates like `axum-test` or `httpc-test` for more integrated testing.
 
 use once_cell::sync::Lazy;
-use tokio::runtime::Runtime;
 use tokio::net::TcpListener;
+use tokio::runtime::Runtime;
 
 // Define a shared Tokio runtime for tests
 static RUNTIME: Lazy<Runtime> = Lazy::new(|| {
@@ -72,7 +72,7 @@ async fn health_check_works() {
     assert_eq!(response.text().await.unwrap(), "OK");
 }
 
-/* 
+/*
 // Example of a test app spawning structure (conceptual)
 struct TestApp {
     address: String,
@@ -85,14 +85,15 @@ async fn spawn_test_app() -> TestApp {
     let listener = tokio::net::TcpListener::bind(&format!("127.0.0.1:{}", port))
         .await
         .unwrap();
-    
+
     // Assuming your app creation logic is in a function `create_app()`
-    // let app = your_crate::create_app().await; 
-    
+
+    // let app = your_crate::create_app().await;
+
     // let server_handle = tokio::spawn(async move {
     //     axum::serve(listener, app.into_make_service()).await.unwrap();
     // });
 
     TestApp { address /*, handle: server_handle*/ }
 }
-*/ 
+*/

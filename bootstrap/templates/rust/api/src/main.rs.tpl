@@ -1,5 +1,5 @@
 // src/main.rs.tpl
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -16,7 +16,9 @@ async fn main() {
     // Initialize tracing subscriber for logging
     // Uses RUST_LOG environment variable (e.g., `export RUST_LOG=info` or `info,tower_http=debug`)
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
@@ -32,7 +34,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" })) // Basic root route
         .route("/health", get(health_check)); // Health check route
-        // Example: .nest("/api/v1/items", routes::item_routes())
+    // Example: .nest("/api/v1/items", routes::item_routes())
 
     tracing::info!(address = %addr, "Server listening");
 
@@ -46,4 +48,4 @@ async fn main() {
 /// Basic health check handler
 async fn health_check() -> &'static str {
     "OK"
-} 
+}

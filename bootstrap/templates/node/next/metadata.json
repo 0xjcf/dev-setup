@@ -27,11 +27,6 @@
 			"variables": []
 		},
 		{
-			"path": "next.config.mjs",
-			"template": "next.config.mjs.tpl",
-			"variables": []
-		},
-		{
 			"path": "src/app/globals.css",
 			"template": "src/app/globals.css.tpl",
 			"variables": []

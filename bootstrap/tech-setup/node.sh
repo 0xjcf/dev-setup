@@ -63,6 +63,16 @@ skaffold_node_ui_base() {
         cd "$current_dir"
         return 1
       fi
+      # Remove default ESLint config if create-vite added it
+      log_info "Attempting to remove ESLint config files..."
+      if [ -f "$project_dir/eslint.config.js" ]; then
+        log_info "   Found eslint.config.js, removing..."
+        run_or_dry rm -f "$project_dir/eslint.config.js"
+      fi
+      if [ -f "$project_dir/.eslintrc.json" ]; then
+        log_info "   Found .eslintrc.json, removing..."
+        run_or_dry rm -f "$project_dir/.eslintrc.json"
+      fi
       ;;
     *)
       log_error "Unknown UI framework: $framework"
@@ -102,7 +112,6 @@ finalize_node_setup() {
 allow:
   - esbuild
   - '@biomejs/biome'
-  - sharp # Common offender in Next.js projects
 EOF
   log_debug "Created/Updated $dir/.pnpm.builds.yaml"
 
@@ -129,8 +138,9 @@ EOF
     log_info "Installing testing dependencies (vitest, testing-library)..."
     # Also need @vitejs/plugin-react for vitest to work with React
     # Also need @testing-library/user-event for simulating user interactions
+    # Remove autoprefixer - Next.js likely handles its own version internally
     if ! run_or_dry pnpm add -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom $pnpm_install_flags; then
-      log_warning "Failed to install testing dependencies. Tests might not run correctly."
+      log_warning "Failed to install testing dependencies. Tests might not work correctly."
       # Decide if this should be fatal
     else
       log_success "Testing dependencies installed."

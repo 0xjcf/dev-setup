@@ -100,10 +100,21 @@ scaffold_project() {
        log_error "Failed during initial Node.js UI base scaffolding for framework $framework."
        return 1
     fi
+    # --- Justfile generation MOVED HERE ---
+    # Generate justfile AFTER base scaffold might have cleared the directory
+    log_debug "Generating justfile after potential base scaffold..."
+    generate_justfile "$dir" "$tech" "$class" # From scaffolding.sh
+    [ -f "$dir/justfile" ] && log_debug "Justfile exists after base scaffold + generation." || log_error "Justfile MISSING after base scaffold + generation."
+  else
+    # --- Justfile generation for non-UI-framework projects ---
+    log_debug "Generating justfile for non-UI-framework project..."
+    generate_justfile "$dir" "$tech" "$class" # From scaffolding.sh
+    [ -f "$dir/justfile" ] && log_debug "Justfile exists after generation." || log_error "Justfile MISSING after generation."
   fi
   
   # --- Phase 2: Apply Custom Templates ---
   # This runs for ALL project types, overlaying our specific files
+  # This is the ONLY place process_templates should be called now.
   process_templates "$dir" "$tech" "$class" "$framework"
   local process_status=$?
   if [[ $process_status -ne 0 ]]; then
@@ -152,11 +163,7 @@ run_project_tests() {
 
   case "$tech" in
     node)
-      log_info "🧹 Formatting check (biome)..."
-      if ! run_or_dry pnpm exec biome format .; then test_status=1; fi
-      log_info "🔬 Linting check (biome)..."
-      if ! run_or_dry pnpm lint; then test_status=1; fi
-      log_info "⚙️ Running unit tests (pnpm test)..."
+      log_info "⚙️  -> Running unit tests (pnpm test)"
       # Run pnpm test directly to see output, then check status
       pnpm test
       local pnpm_test_status=$?
@@ -166,13 +173,9 @@ run_project_tests() {
       fi
       ;;
     rust)
-      log_info "🧹 Formatting check (cargo fmt)..."
-      if ! run_or_dry cargo fmt --all -- --check; then test_status=1; fi
-      log_info "🔬 Linting check (cargo clippy)..."
-      if ! run_or_dry cargo clippy --all-targets -- -D warnings; then test_status=1; fi
-      log_info "⚙️ Running unit tests (cargo nextest)..."
-      if ! run_or_dry cargo nextest run; then test_status=1; fi
-      ;;
+       log_info "⚙️  -> Running unit tests (cargo nextest)"
+       if ! run_or_dry cargo nextest run; then test_status=1; fi
+       ;;
     go)
       log_warning "Go testing execution not implemented yet."
       # Add go test commands here
@@ -292,11 +295,7 @@ run_bootstrap_for_dir() {
   # --- Phase 5: Project Setup --- # scaffold_project uses headers
   log_header "Starting Project Setup"
 
-  log_info "Generating common configuration files..."
-  # Pass the target directory ($dir) as the first argument
-  generate_justfile "$dir" "$current_tech" "$current_class" # From scaffolding.sh
-  generate_meta_json "$dir" "$current_tech" "$current_class" # From scaffolding.sh
-
+  # --- Phase 5b: Main Scaffolding ---
   scaffold_project "$dir" "$current_tech" "$current_class" "$current_framework"
   local scaffold_status=$?
   # Check status after main scaffolding

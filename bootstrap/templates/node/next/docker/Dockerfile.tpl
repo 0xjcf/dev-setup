@@ -3,7 +3,8 @@
 # ---- Base Stage ----
 FROM node:22-slim AS base
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@8.15.4 --activate
+# Align pnpm version with local environment (v10.8.1) that generates lockfile
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
 
 # ---- Dependencies Stage ----
 FROM base AS deps

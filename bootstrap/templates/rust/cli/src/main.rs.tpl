@@ -11,7 +11,8 @@ mod telemetry;
 // External crates
 // use anyhow::Result; // Uncomment if using anyhow
 
-fn main() -> Result<(), Box<dyn std::error::Error>> { // Replace with anyhow::Result if using anyhow
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Replace with anyhow::Result if using anyhow
     // Parse command line arguments
     let cli_args = cli::Cli::parse();
 
@@ -28,14 +29,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> { // Replace with anyhow::Re
             println!("Hello, {}!", target);
             // Example: Call a handler function from a subcommand module
             // commands::greet::run(name)?;
-        }
-        // Match other commands here
-        // cli::Commands::Run { task_id, config } => {
-        //     tracing::info!(task = task_id, config = ?config, "Executing run command");
-        //     commands::run::run_task(&task_id, config.as_deref())?;
-        // }
+        } // Match other commands here
+          // cli::Commands::Run { task_id, config } => {
+          //     tracing::info!(task = task_id, config = ?config, "Executing run command");
+          //     commands::run::run_task(&task_id, config.as_deref())?;
+          // }
     }
 
     tracing::info!("Command finished successfully");
     Ok(())
-} 
+}
