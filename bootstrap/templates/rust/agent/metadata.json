@@ -1,0 +1,45 @@
+{
+	"description": "Template metadata for Rust Agent projects",
+	"files": [
+		{
+			"path": ".gitignore",
+			"template": ".gitignore.tpl",
+			"variables": []
+		},
+		{
+			"path": ".env.example",
+			"template": ".env.example.tpl",
+			"variables": []
+		},
+		{
+			"path": "Cargo.toml",
+			"template": "Cargo.toml.tpl",
+			"variables": ["project_name", "version", "description"]
+		},
+		{
+			"path": "src/main.rs",
+			"template": "src/main.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/agent/mod.rs",
+			"template": "src/agent/mod.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "tests/agent_tests.rs",
+			"template": "tests/agent_tests.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "Dockerfile",
+			"template": "docker/Dockerfile.tpl",
+			"variables": ["project_name"]
+		},
+		{
+			"path": "docker-compose.yml",
+			"template": "docker/docker-compose.yml.tpl",
+			"variables": ["project_name"]
+		}
+	]
+}

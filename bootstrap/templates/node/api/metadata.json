@@ -1,0 +1,51 @@
+{
+	"metadata": {
+		"tech": "node",
+		"class": "api",
+		"version": "1.0.0",
+		"variables": [
+			"project_name",
+			"port",
+			"version",
+			"description",
+			"entry_point"
+		]
+	},
+	"files": [
+		{
+			"path": "package.json",
+			"template": "package.json.tpl",
+			"variables": ["project_name", "version", "description", "entry_point"]
+		},
+		{
+			"path": "tsconfig.json",
+			"template": "tsconfig.json.tpl",
+			"variables": []
+		},
+		{
+			"path": "biome.json",
+			"template": "../shared/biome.json.tpl",
+			"variables": []
+		},
+		{
+			"path": "Dockerfile",
+			"template": "docker/Dockerfile.tpl",
+			"variables": ["port"]
+		},
+		{
+			"path": "docker-compose.yml",
+			"template": "docker/docker-compose.yml.tpl",
+			"variables": ["port"]
+		},
+		{
+			"path": "src/index.ts",
+			"template": "src/index.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "test/index.test.ts",
+			"template": "test/index.test.ts.tpl",
+			"variables": []
+		}
+	]
+}

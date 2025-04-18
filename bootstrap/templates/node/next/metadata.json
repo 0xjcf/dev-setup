@@ -1,0 +1,55 @@
+{
+	"description": "Template metadata for Node.js Next.js projects",
+	"files": [
+		{
+			"path": "src/app/page.test.tsx",
+			"template": "src/app/page.test.tsx.tpl",
+			"variables": []
+		},
+		{
+			"path": "tests/setup.ts",
+			"template": "tests/setup.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "vitest.config.ts",
+			"template": "vitest.config.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "tailwind.config.ts",
+			"template": "tailwind.config.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "postcss.config.mjs",
+			"template": "postcss.config.mjs.tpl",
+			"variables": []
+		},
+		{
+			"path": "next.config.mjs",
+			"template": "next.config.mjs.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/app/globals.css",
+			"template": "src/app/globals.css.tpl",
+			"variables": []
+		},
+		{
+			"path": "Dockerfile",
+			"template": "docker/Dockerfile.tpl",
+			"variables": []
+		},
+		{
+			"path": "docker-compose.yml",
+			"template": "docker/docker-compose.yml.tpl",
+			"variables": ["port"]
+		},
+		{
+			"path": "biome.json",
+			"template": "../shared/biome.json.tpl",
+			"variables": []
+		}
+	]
+}

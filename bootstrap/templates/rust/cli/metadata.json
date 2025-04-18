@@ -1,0 +1,40 @@
+{
+	"description": "Template metadata for Rust CLI projects",
+	"files": [
+		{
+			"path": ".gitignore",
+			"template": ".gitignore.tpl",
+			"variables": []
+		},
+		{
+			"path": ".env.example",
+			"template": ".env.example.tpl",
+			"variables": []
+		},
+		{
+			"path": "Cargo.toml",
+			"template": "Cargo.toml.tpl",
+			"variables": ["project_name", "version", "description"]
+		},
+		{
+			"path": "src/main.rs",
+			"template": "src/main.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/cli.rs",
+			"template": "src/cli.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/telemetry.rs",
+			"template": "src/telemetry.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "tests/cli_tests.rs",
+			"template": "tests/cli_tests.rs.tpl",
+			"variables": []
+		}
+	]
+}

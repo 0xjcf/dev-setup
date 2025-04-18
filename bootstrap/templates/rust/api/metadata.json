@@ -1,0 +1,40 @@
+{
+	"description": "Template metadata for Rust API (Axum) projects",
+	"files": [
+		{
+			"path": ".gitignore",
+			"template": ".gitignore.tpl",
+			"variables": []
+		},
+		{
+			"path": ".env.example",
+			"template": ".env.example.tpl",
+			"variables": []
+		},
+		{
+			"path": "Cargo.toml",
+			"template": "Cargo.toml.tpl",
+			"variables": ["project_name", "version", "description"]
+		},
+		{
+			"path": "src/main.rs",
+			"template": "src/main.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "tests/health_check.rs",
+			"template": "tests/health_check.rs.tpl",
+			"variables": []
+		},
+		{
+			"path": "Dockerfile",
+			"template": "docker/Dockerfile.tpl",
+			"variables": ["project_name", "port"]
+		},
+		{
+			"path": "docker-compose.yml",
+			"template": "docker/docker-compose.yml.tpl",
+			"variables": ["project_name", "port"]
+		}
+	]
+}

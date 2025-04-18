@@ -1,0 +1,65 @@
+{
+	"description": "Template metadata for Node.js Vite projects",
+	"files": [
+		{
+			"path": "src/App.test.tsx",
+			"template": "src/App.test.tsx.tpl",
+			"variables": []
+		},
+		{
+			"path": "vite.config.ts",
+			"template": "vite.config.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/tests/setup.ts",
+			"template": "src/tests/setup.ts.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/main.tsx",
+			"template": "src/main.tsx.tpl",
+			"variables": []
+		},
+		{
+			"path": "src/App.tsx",
+			"template": "src/App.tsx.tpl",
+			"variables": []
+		},
+		{
+			"path": "tsconfig.app.json",
+			"template": "tsconfig.app.json.tpl",
+			"variables": []
+		},
+		{
+			"path": "tsconfig.json",
+			"template": "tsconfig.json.tpl",
+			"variables": []
+		},
+		{
+			"path": "tsconfig.node.json",
+			"template": "tsconfig.node.json.tpl",
+			"variables": []
+		},
+		{
+			"path": "Dockerfile",
+			"template": "docker/Dockerfile.tpl",
+			"variables": []
+		},
+		{
+			"path": "docker-compose.yml",
+			"template": "docker/docker-compose.yml.tpl",
+			"variables": ["port"]
+		},
+		{
+			"path": "docker/nginx.conf",
+			"template": "docker/nginx.conf.tpl",
+			"variables": []
+		},
+		{
+			"path": "biome.json",
+			"template": "../shared/biome.json.tpl",
+			"variables": []
+		}
+	]
+}
