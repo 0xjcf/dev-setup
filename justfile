@@ -45,12 +45,6 @@ healthcheck:
 
 _bootstrap_project TECH CLASS FRAMEWORK="":
     #!/usr/bin/env bash
-    set -e
-    # Define shell variables inside the recipe for correct parameter interpolation
-    _PROJECT_TYPE="{{TECH}}-{{CLASS}}{{ if FRAMEWORK != '' { '-' + FRAMEWORK } else { '' } }}"
-    # Target directory relative to the WORKSPACE root (../), not the dev-setup directory
-    _TARGET_DIR="{{BOOTSTRAP_TEST_ROOT}}/{{TECH}}/test-{{CLASS}}{{ if FRAMEWORK != '' { '-' + FRAMEWORK } else { '' } }}"
-
     echo "⚡ Bootstrapping ${_PROJECT_TYPE} project into ${_TARGET_DIR}..."
     echo "Cleaning ${_TARGET_DIR}..."
     rm -rf "${_TARGET_DIR}"
@@ -77,112 +71,50 @@ _bootstrap_project TECH CLASS FRAMEWORK="":
     fi
 
 bootstrap-node-api:
-    @just _bootstrap_project node api
+    @./scripts/bootstrap.sh --yes --clean --tech node --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
 
 bootstrap-node-ui-next:
-    @just _bootstrap_project node ui next
+    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
 
 bootstrap-node-ui-vite:
-    @just _bootstrap_project node ui vite
+    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
 
 bootstrap-rust-cli:
-    @just _bootstrap_project rust cli
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class cli --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
 
 bootstrap-rust-api:
-    @just _bootstrap_project rust api
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
 
 bootstrap-rust-agent:
-    @just _bootstrap_project rust agent
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class agent --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
 
 # --- Test Bootstrapped Projects (in {{BOOTSTRAP_TEST_ROOT}}/) ---
-# These tasks CD into the bootstrapped project dir and run tests.
-# NOTE: Paths are relative to the WORKSPACE root (../)
-
-# Shared testing logic for Node.js projects
-_test_node_project PROJECT_PATH:
-    #!/usr/bin/env bash
-    set -e # Exit immediately if a command exits with a non-zero status.
-
-    echo "Changing directory to {{PROJECT_PATH}}"
-    cd "{{PROJECT_PATH}}"
-
-    echo "🧪 Testing Node.js project in $(pwd)..."
-    echo "🧹 Formatting with biome (checking)..."
-    # Assuming pnpm format script runs 'biome format .'
-    # Running format without --write acts as a check
-    # Use pnpm exec to ensure project's biome version is used
-    pnpm exec biome format .
-
-    echo "🔬 Linting with biome..."
-    # Assuming pnpm lint script runs 'biome check .'
-    pnpm lint
-
-    # echo "🩺 Running type checks..." # Often redundant if tests include checks
-    # pnpm typecheck
-
-    echo "⚙️  Running tests..."
-    # Assuming pnpm test script runs 'vitest run'
-    pnpm test
-
-    echo "✅ Node.js project test complete: {{PROJECT_PATH}}"
-    # No need for 'cd -', the script block exits and returns to original dir
+# These tasks now run bootstrap.sh with --run-tests, which includes cleaning.
 
 # Test specific Node.js project types
-# Uses the shared Node.js test logic
-test-node-api:
-    @just _test_node_project "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
+int-test-node-api:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
 
 # Add recipes for the current UI scaffolds
-test-node-ui-next:
-    @just _test_node_project "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
-test-node-ui-vite:
-    @just _test_node_project "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
-
-# Shared testing logic for Rust projects
-_test_rust_project PROJECT_PATH:
-    cd "{{PROJECT_PATH}}"
-    echo "🧪 Testing Rust project in $(pwd)..."
-    echo "🧹 Formatting with rustfmt..."
-    cargo fmt --all -- --check
-    echo "🔬 Linting with clippy..."
-    cargo clippy --all-targets -- -D warnings
-    echo "⚙️ Running tests with cargo nextest..."
-    cargo nextest run
-    echo "✅ Rust project test complete: {{PROJECT_PATH}}"
-    cd -
+int-test-node-ui-next:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
+int-test-node-ui-vite:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
 
 # Test specific Rust project types
-# Uses the shared Rust test logic
-test-rust-cli:
-    @just _test_rust_project "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
+int-test-rust-cli:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class cli --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
 
 # Add recipe for rust-agent
-test-rust-agent:
-    @just _test_rust_project "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
+int-test-rust-agent:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class agent --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
 
-# Specific test logic for Rust API projects (includes docker)
-_test_rust_api_project PROJECT_PATH:
-    cd "{{PROJECT_PATH}}"
-    echo "🧪 Testing Rust API project in $(pwd)..."
-    echo "🧹 Formatting with rustfmt..."
-    cargo fmt --all -- --check
-    echo "🔬 Linting with clippy..."
-    cargo clippy --all-targets -- -D warnings
-    echo "⚙️ Running tests with cargo nextest..."
-    cargo nextest run
-    # Skip docker build during basic test run
-    # echo "🐳 Building Docker image..."
-    # _BASENAME=$(basename "{{PROJECT_PATH}}")
-    # docker build -t "rust-api-test-${_BASENAME}" .
-    echo "✅ Rust API project test complete: {{PROJECT_PATH}}"
-    cd -
-
-test-rust-api:
-    @just _test_rust_api_project "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
+int-test-rust-api:
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
 
 # Run all bootstrap tests
 # This runs the actual test suites *within* each bootstrapped project
-test-all: test-node-api test-node-ui-next test-node-ui-vite test-rust-cli test-rust-agent test-rust-api
+test-all: int-test-node-api int-test-node-ui-next int-test-node-ui-vite int-test-rust-cli int-test-rust-agent int-test-rust-api
 
 # Run the comprehensive scaffold test script
 test-scaffolds:

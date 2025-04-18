@@ -39,7 +39,7 @@ skaffold_node_ui_base() {
       # --tailwind = use Tailwind, --no-git = don't initialize git repo
       # --turbo = Use Turbopack for dev server
       # Note: create-next-app might still prompt interactively for some options
-      if ! run_or_dry pnpm create next-app "$project_dir" --ts --eslint --tailwind --src-dir --app --import-alias="@/*" --no-git --use-pnpm --turbo; then
+      if ! run_or_dry pnpm create next-app "$project_dir" --ts --no-eslint --tailwind --src-dir --app --import-alias="@/*" --no-git --use-pnpm --turbo; then
         log_error "Failed to create Next.js project with create-next-app."
         cd "$current_dir"
         return 1
@@ -102,7 +102,7 @@ finalize_node_setup() {
 allow:
   - esbuild
   - '@biomejs/biome'
-  # Add others if needed, e.g., sharp for Next.js?
+  - sharp # Common offender in Next.js projects
 EOF
   log_debug "Created/Updated $dir/.pnpm.builds.yaml"
 
@@ -124,13 +124,37 @@ EOF
   fi
   log_success "Final dependencies installed."
 
+  # Install testing dependencies for UI projects
+  if [[ "$class" == "ui" ]]; then
+    log_info "Installing testing dependencies (vitest, testing-library)..."
+    # Also need @vitejs/plugin-react for vitest to work with React
+    # Also need @testing-library/user-event for simulating user interactions
+    if ! run_or_dry pnpm add -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom $pnpm_install_flags; then
+      log_warning "Failed to install testing dependencies. Tests might not run correctly."
+      # Decide if this should be fatal
+    else
+      log_success "Testing dependencies installed."
+      # Add/Update "test" script to use vitest ONLY for UI projects
+      log_info "Ensuring 'test' script uses vitest in package.json..."
+      local temp_pkg_json="${package_json}.tmp"
+      # Use jq to update the scripts.test entry. Create scripts object if needed.
+      if run_or_dry jq '( .scripts.test = "vitest run" )' "$package_json" > "$temp_pkg_json" && run_or_dry mv "$temp_pkg_json" "$package_json"; then
+          log_success "Successfully updated package.json test script."
+      else
+          log_warning "Failed to update package.json test script using jq."
+          # Clean up temp file if mv failed
+          [ -f "$temp_pkg_json" ] && run_or_dry rm "$temp_pkg_json"
+      fi
+    fi
+  fi
+
   # Initialize Biome if config exists and biome is installed
   if [[ "$class" != "lib" ]]; then
     if [ -f "$dir/biome.json" ]; then
         log_info "Biome configuration found. Ensuring Biome is installed and formatting..."
         
         # Ensure biome is installed as a dev dependency
-        log_info "   -> Ensuring @biomejs/biome is installed..."
+        log_info " -> Ensuring @biomejs/biome is installed..."
         if ! run_or_dry pnpm add -D @biomejs/biome $pnpm_install_flags; then
             log_error "   -> Failed to install @biomejs/biome. Skipping Biome steps."
         else

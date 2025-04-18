@@ -12,10 +12,10 @@ This file tracks the status of both the scaffold documentation prompts (`*.md`) 
   - [x] Implementation: Fully implemented and tested in `bootstrap.sh`. (Template path fixes verified)
 - **UI (Next.js) (`node:ui`, `--framework=next`)**
   - [x] Prompt: `node/ui-next-scaffold.md` (Reviewed & Updated)
-  - [ ] Implementation: **Incomplete** - Missing package.json.tpl template in bootstrap/templates/node/next.
+  - [x] Implementation: Fully implemented and tested.
 - **UI (Vite) (`node:ui`, `--framework=vite`)**
   - [x] Prompt: `node/ui-vite-scaffold.md` (Reviewed & Updated)
-  - [ ] Implementation: Needs verification after template path fixes.
+  - [x] Implementation: Fully implemented and tested.
 
 ## Rust
 
