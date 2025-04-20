@@ -84,6 +84,7 @@ check_tool "brew" "brew"
 for t in bat rg fzf gh direnv just eza tokei jq glow hyperfine dive trivy semgrep zoxide lazydocker; do
   check_tool "$t" "$t"
 done
+check_tool "act" "act"
 
 # Rust
 check_tool "rustc" "rustc"

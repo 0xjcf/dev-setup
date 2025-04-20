@@ -22,7 +22,7 @@ fi
 
 # 2. CLI Tools
 step $CURRENT_STEP "Installing CLI tools with Homebrew"
-cli_tools=(bat ripgrep fzf gh direnv just eza tokei jq glow hyperfine dive trivy go zoxide zsh-autosuggestions zsh-syntax-highlighting semgrep lazydocker pkgconf openssl@3 sqlite python3)
+cli_tools=(bat ripgrep fzf gh direnv just eza tokei jq glow hyperfine dive trivy go zoxide zsh-autosuggestions zsh-syntax-highlighting semgrep lazydocker pkgconf openssl@3 sqlite python3 act)
 for tool in "${cli_tools[@]}"; do
   if brew list "$tool" &>/dev/null || brew list --cask "$tool" &>/dev/null; then
     echo "✅ $tool already installed"
@@ -189,4 +189,4 @@ fi
 
 # 14. Final check
 step $CURRENT_STEP "Running healthcheck"
-./healthcheck.sh --json
+./scripts/healthcheck.sh --json
