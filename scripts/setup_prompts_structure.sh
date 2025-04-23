@@ -313,8 +313,15 @@ Review project status, confirm readiness for the next phase/task identified, ens
 ## Action
 1.  **Confirm Readiness:** Are all review and preparation steps satisfactory?
 2.  **Document Outcomes (Previous Task):** If applicable, add key decisions, takeaways, links to artifacts, or deviations to the 'Notes' column for the *previous* task (`{{PREVIOUS_PHASE_PROMPT_FILE}}`) in `PROGRESS.md`.
-3.  **(If Ready) Update `PROGRESS.md`:** Change the status for the `{{CURRENT_PHASE_PROMPT_FILE}}` component to 'In Progress'.
-4.  **(If Ready) Begin Task:** Proceed with the first task listed in `{{CURRENT_PHASE_PROMPT_FILE}}`.
+3.  **(If Ready) Update `PROGRESS.md`:** Change the status for the `{{CURRENT_PHASE_PROMPT_FILE}}` component to 'In Progress', adding a note like "Implementation starting: [First Task Name]".
+4.  **(If Ready) Begin Task:** Proceed with the first task listed in `{{CURRENT_PHASE_PROMPT_FILE}}`. Follow this iterative development workflow:
+    *   **a. Scaffold Component:** Create the basic file structure.
+    *   **b. Implement Core UI/Logic:** Build the essential elements and functionality described in the task.
+    *   **c. Unit/Integration Test Logic:** Write `vitest` tests for core logic, state, and interactions as they are built or immediately after.
+    *   **d. Implement Routing/Guards:** Add necessary navigation logic (if applicable).
+    *   **e. Integration Test Routing:** Verify navigation logic with `vitest` (if applicable).
+    *   **f. E2E/Accessibility Tests:** Implement `playwright` tests and perform accessibility audits (`axe`/`Lighthouse`) once the component/feature is functional.
+    *   **g. Review & Refine:** Check against prompt requirements and success criteria.
 EOF
     fi
 
