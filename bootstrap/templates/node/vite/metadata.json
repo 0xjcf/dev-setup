@@ -12,6 +12,11 @@
 			"variables": []
 		},
 		{
+			"path": "vitest.config.ts",
+			"template": "vitest.config.ts.tpl",
+			"variables": []
+		},
+		{
 			"path": "src/tests/setup.ts",
 			"template": "src/tests/setup.ts.tpl",
 			"variables": []

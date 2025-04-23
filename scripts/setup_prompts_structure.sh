@@ -15,7 +15,7 @@ usage() {
     echo "Options:"
     echo "  --phases <phase_name1> [phase_name2...]  Specify phase names (e.g., --phases 01-core 02-cli)"
     echo "  --num-phases <number>                    Specify number of generic phases (e.g., --num-phases 6)"
-    echo "  --create-placeholders                  Create placeholder project management files"
+    echo "  --create-placeholders                  Create placeholder project management & phase files"
     echo "  -h, --help                             Display this help message"
     echo "Example: $0 --phases 01-discovery 02-build --create-placeholders ../MyNewProject"
     exit 1
@@ -106,12 +106,23 @@ mkdir -p "$PROMPTS_DIR/workflows"
 echo "Creating phase subdirectories..."
 mkdir -p "$PROMPTS_DIR/phases"
 PHASE_DIRS_LIST=""
-for phase in "${PHASE_NAMES[@]}"; do
+for i in $(seq 0 $((${#PHASE_NAMES[@]} - 1)) ); do
+    phase=${PHASE_NAMES[$i]}
     # Sanitize phase name for directory creation (basic example)
     dir_name=$(echo "$phase" | sed 's/[^a-zA-Z0-9_-]/-/g')
-    mkdir -p "$PROMPTS_DIR/phases/$dir_name"
-    PHASE_DIRS_LIST+="│   ├── $dir_name/      # Phase implementation\n"
+    phase_path="$PROMPTS_DIR/phases/$dir_name"
+    mkdir -p "$phase_path"
     echo "  Created: phases/$dir_name/"
+    PHASE_DIRS_LIST+="│   ├── $dir_name/\n"
+
+    # Create diagrams subdir in the first phase
+    if [ $i -eq 0 ]; then
+        mkdir -p "$phase_path/diagrams"
+        echo "    Created: phases/$dir_name/diagrams/\n│   │   └── diagrams/     # Diagrams (architecture, state machines, etc.)\n"
+        PHASE_DIRS_LIST+="         # Phase implementation & design\n│   │   └── diagrams/\n"
+    else
+        PHASE_DIRS_LIST+="      # Phase implementation\n"
+    fi
 done
 
 # Create README.md with directory structure explanation
@@ -144,13 +155,16 @@ ${PHASE_DIRS_LIST}├── project/          # Project management and workflow 
 
 ### Implementation Phases
 
-Each phase directory contains detailed prompts for implementing that phase.
+Each phase directory contains detailed prompts for implementing that phase. If created using \`--create-placeholders\`, common starting prompts may exist:
+*   **Phase 01 (Planning/Design):** Typically includes design documents (\`01_domain_model.md\`, \`02_architecture_design.md\`) and diagrams (\`diagrams/\`).
+*   **Phase 02 (Development):** Focuses on implementation prompts (\`01_<feature>_implementation.md\`), guided by Phase 01 designs.
+*   **Phase 03 (Testing):** Contains testing definition prompts (\`01_test_plan.md\`, \`02_e2e_test_cases.md\`, \`03_accessibility_audit.md\`).
 
 ## Using These Prompts
 
-1. Start with the project management files to understand the overall workflow
-2. Review the phase-specific prompts for implementation details
-3. Use the templates and guides during development for consistent approaches
+1. Start with the project management files to understand the overall workflow.
+2. Review the phase-specific prompts for planning and implementation details.
+3. Use the templates and guides during development for consistent approaches.
 
 For adding new prompts, please follow the established directory structure and naming conventions.
 EOF
@@ -260,10 +274,50 @@ $ASSESSMENT_TABLE
 [Add areas that need attention or enhancement]
 EOF
     fi
+
+    # Create phase-specific placeholders
+    echo "Creating placeholder phase files..."
+    for i in $(seq 0 $((${#PHASE_NAMES[@]} - 1)) ); do
+        phase=${PHASE_NAMES[$i]}
+        dir_name=$(echo "$phase" | sed 's/[^a-zA-Z0-9_-]/-/g')
+        phase_path="$PROMPTS_DIR/phases/$dir_name"
+
+        # Heuristics based on common phase names/order
+        if [ $i -eq 0 ] || [[ "$phase" == *"planning"* ]] || [[ "$phase" == *"design"* ]]; then
+            echo "  Creating planning/design placeholders in: $phase_path"
+            # 01_domain_model.md
+            if [ ! -f "$phase_path/01_domain_model.md" ]; then
+                echo "# Prompt: Define Domain Model\n\n## Objective\nDefine core data structures, interfaces, and relationships.\n\n## Tasks\n1. Identify entities.\n2. Define fields and types.\n3. Map relationships.\n4. Create diagram in diagrams/domain_model.mmd.\n\n## Success Criteria\n- [ ] Interfaces/types defined.\n- [ ] Relationships documented.\n- [ ] Diagram created." > "$phase_path/01_domain_model.md"
+            fi
+            # 02_architecture_design.md
+            if [ ! -f "$phase_path/02_architecture_design.md" ]; then
+                echo "# Prompt: Design System Architecture\n\n## Objective\nDefine the overall technical architecture (e.g., APIs, state management, data flow).\n\n## Tasks\n1. Choose architectural patterns.\n2. Define major components and interactions.\n3. Specify APIs / service contracts.\n4. Design state management approach.\n5. Create diagram in diagrams/architecture.mmd.\n\n## Success Criteria\n- [ ] Patterns selected.\n- [ ] Components defined.\n- [ ] APIs specified.\n- [ ] State management designed.\n- [ ] Diagram created." > "$phase_path/02_architecture_design.md"
+            fi
+        elif [[ "$phase" == *"development"* ]] || [[ "$phase" == *"implementation"* ]]; then
+            echo "  Creating development README in: $phase_path"
+            if [ ! -f "$phase_path/README.md" ]; then
+                 echo "# Phase: $phase\n\nThis phase focuses on implementing the features and architecture designed in Phase $(printf "%02d" $i). \n\nPrompts in this directory (e.g., \`01_<feature>_implementation.md\`) will detail specific implementation tasks, referencing the relevant design documents from the previous phase." > "$phase_path/README.md"
+            fi
+        elif [[ "$phase" == *"testing"* ]]; then
+            echo "  Creating testing placeholders in: $phase_path"
+            # 01_test_plan.md
+             if [ ! -f "$phase_path/01_test_plan.md" ]; then
+                 echo "# Prompt: Define Test Plan\n\n## Objective\nOutline the strategy, scope, resources, and schedule for testing.\n\n## Sections\n- Scope (features in/out)\n- Test Levels (Unit, Integration, E2E, Accessibility)\n- Environments\n- Roles & Responsibilities\n- Tools\n- Schedule\n- Entry/Exit Criteria\n\n## Success Criteria\n- [ ] All sections completed." > "$phase_path/01_test_plan.md"
+             fi
+             # 02_e2e_test_cases.md
+             if [ ! -f "$phase_path/02_e2e_test_cases.md" ]; then
+                 echo "# Prompt: Define End-to-End (E2E) Test Cases\n\n## Objective\nDocument specific E2E test scenarios based on user flows.\n\n## Format (Example)\n| Test Case ID | User Flow         | Steps                                     | Expected Result        | Status |\n|--------------|-------------------|-------------------------------------------|------------------------|--------|\n| E2E-001      | Student Login     | 1. Navigate... 2. Enter... 3. Click... | User lands on dashboard | Pass   |\n\n## Success Criteria\n- [ ] Key user flows covered." > "$phase_path/02_e2e_test_cases.md"
+             fi
+             # 03_accessibility_audit.md
+             if [ ! -f "$phase_path/03_accessibility_audit.md" ]; then
+                 echo "# Prompt: Define Accessibility Audit Plan\n\n## Objective\nPlan the process for auditing WCAG compliance.\n\n## Sections\n- Scope (WCAG Level AA/AAA)\n- Tools (Axe, WAVE, Screen Readers)\n- Audit Process (Automated, Manual Keyboard, Manual Screen Reader)\n- Reporting Format\n\n## Success Criteria\n- [ ] Audit scope and process defined." > "$phase_path/03_accessibility_audit.md"
+             fi
+        fi
+    done
 fi
 
 echo "Done! Prompts directory structure created successfully."
 echo "Next steps:"
 echo "1. Update project management files with specific project details (if created)"
-echo "2. Create phase-specific prompt files in the phases subdirectories"
+echo "2. Refine placeholder phase prompts with project-specific details (if created)"
 echo "3. Add any necessary templates or guides to the appropriate directories"

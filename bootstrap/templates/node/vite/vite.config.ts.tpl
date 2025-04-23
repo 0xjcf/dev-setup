@@ -9,9 +9,4 @@ export default defineConfig({
     host: true, // Listen on all addresses, including 0.0.0.0
     port: 5173, // Default port
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/tests/setup.ts',
-  },
 }) 

@@ -42,6 +42,9 @@ test:
 lint:
   pnpm lint
 
+format:
+  pnpm biome check --write .
+
 build:
   pnpm build
 

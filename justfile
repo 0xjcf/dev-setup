@@ -6,7 +6,7 @@ default:
     @just --list
 
 # Root directory for bootstrapped test projects, relative to workspace root
-BOOTSTRAP_TEST_ROOT := "../bootstrap-test"
+BOOTSTRAP_ROOT := "../Kayla-Northington"
 
 # --- Configuration Variables ---
 
@@ -34,14 +34,24 @@ healthcheck:
     chmod +x ./scripts/healthcheck.sh
     ./scripts/healthcheck.sh
 
-# --- Bootstrap Specific Project Types (into {{BOOTSTRAP_TEST_ROOT}}/) ---
+# --- Project Specific Setup ---
+
+# Setup the prompts directory structure for the Kayla-Northington project
+setup-prompts:
+    #!/usr/bin/env bash
+    echo "🏗️ Setting up prompts directory structure..."
+    chmod +x ./scripts/setup_prompts_structure.sh
+    # Create default phases and placeholder files in the target project
+    ./scripts/setup_prompts_structure.sh --create-placeholders "{{BOOTSTRAP_ROOT}}"
+
+# --- Bootstrap Specific Project Types (into {{BOOTSTRAP_ROOT}}/) ---
 # These tasks clean the target dir and run bootstrap.sh
 # NOTE: Output dir is relative to the WORKSPACE root (../)
 
 # Define top-level variables for dynamic path construction
 # PROJECT_TYPE := "{{TECH}}-{{CLASS}}{{ if FRAMEWORK != '' { '-' + FRAMEWORK } else { '' } }}"
 # Output relative to the workspace root, not dev-setup root
-# TARGET_DIR := "{{BOOTSTRAP_TEST_ROOT}}/{{TECH}}/test-{{CLASS}}{{ if FRAMEWORK != '' { '-' + FRAMEWORK } else { '' } }}"
+# TARGET_DIR := "{{BOOTSTRAP_ROOT}}/{{TECH}}/test-{{CLASS}}{{ if FRAMEWORK != '' { '-' + FRAMEWORK } else { '' } }}"
 
 _bootstrap_project TECH CLASS FRAMEWORK="":
     #!/usr/bin/env bash
@@ -71,46 +81,46 @@ _bootstrap_project TECH CLASS FRAMEWORK="":
     fi
 
 bootstrap-node-api:
-    @./scripts/bootstrap.sh --yes --clean --tech node --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
+    @./scripts/bootstrap.sh --yes --clean --tech node --class api --target-dir "{{BOOTSTRAP_ROOT}}"
 
 bootstrap-node-ui-next:
-    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
+    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_ROOT}}"
 
 bootstrap-node-ui-vite:
-    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
+    @./scripts/bootstrap.sh --yes --clean --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_ROOT}}"
 
 bootstrap-rust-cli:
-    @./scripts/bootstrap.sh --yes --clean --tech rust --class cli --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class cli --target-dir "{{BOOTSTRAP_ROOT}}"
 
 bootstrap-rust-api:
-    @./scripts/bootstrap.sh --yes --clean --tech rust --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class api --target-dir "{{BOOTSTRAP_ROOT}}"
 
 bootstrap-rust-agent:
-    @./scripts/bootstrap.sh --yes --clean --tech rust --class agent --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
+    @./scripts/bootstrap.sh --yes --clean --tech rust --class agent --target-dir "{{BOOTSTRAP_ROOT}}"
 
-# --- Test Bootstrapped Projects (in {{BOOTSTRAP_TEST_ROOT}}/) ---
+# --- Test Bootstrapped Projects (in {{BOOTSTRAP_ROOT}}/) ---
 # These tasks now run bootstrap.sh with --run-tests, which includes cleaning.
 
 # Test specific Node.js project types
 i-test-node-api:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-api"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class api --target-dir "{{BOOTSTRAP_ROOT}}"
 
 # Add recipes for the current UI scaffolds
 i-test-node-ui-next:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-next"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework next --target-dir "{{BOOTSTRAP_ROOT}}"
 i-test-node-ui-vite:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_TEST_ROOT}}/node/test-ui-vite"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech node --class ui --framework vite --target-dir "{{BOOTSTRAP_ROOT}}"
 
 # Test specific Rust project types
 i-test-rust-cli:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class cli --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-cli"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class cli --target-dir "{{BOOTSTRAP_ROOT}}"
 
 # Add recipe for rust-agent
 i-test-rust-agent:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class agent --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-agent"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class agent --target-dir "{{BOOTSTRAP_ROOT}}"
 
 i-test-rust-api:
-    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class api --target-dir "{{BOOTSTRAP_TEST_ROOT}}/rust/test-api"
+    @./scripts/bootstrap.sh --yes --clean --run-tests --tech rust --class api --target-dir "{{BOOTSTRAP_ROOT}}"
 
 # Run all bootstrap tests
 # This runs the actual test suites *within* each bootstrapped project
@@ -222,5 +232,5 @@ check-deps:
 # --- Cleanup ---
 clean:
     @echo "🧹 Cleaning generated test projects..."
-    @rm -rf "{{BOOTSTRAP_TEST_ROOT}}"
+    @rm -rf "{{BOOTSTRAP_ROOT}}"
     @echo "✅ Clean up complete." 
