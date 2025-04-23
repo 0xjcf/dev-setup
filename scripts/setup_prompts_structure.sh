@@ -152,6 +152,7 @@ ${PHASE_DIRS_LIST}├── project/          # Project management and workflow 
 - \`project/PROJECT_WORKFLOW.md\` - Development workflow guidelines and templates
 - \`project/PROGRESS.md\` - Phase implementation progress tracking
 - \`project/PHASE_ASSESSMENT.md\` - Assessment of phase readiness
+- \`project/NEXT_PHASE.md\` - Guide for initiating subsequent phases/tasks.
 
 ### Implementation Phases
 
@@ -272,6 +273,48 @@ $ASSESSMENT_TABLE
 ## Areas for Attention
 
 [Add areas that need attention or enhancement]
+EOF
+    fi
+
+    # Create NEXT_PHASE.md placeholder
+    if [ ! -f "$PROMPTS_DIR/project/NEXT_PHASE.md" ]; then
+        cat > "$PROMPTS_DIR/project/NEXT_PHASE.md" << 'EOF'
+# Prompt: Initiate Next Phase/Task
+
+## Objective
+Review project status, confirm readiness for the next phase/task identified, ensure its prompt file is prepared with success criteria, and update progress tracking.
+
+## Context Files
+*   **Current Phase Prompt:** `{{CURRENT_PHASE_PROMPT_FILE}}` (e.g., `prompts/phases/01-planning/02_state_machine_refinement.md`)
+*   **Previous Phase Prompt:** `{{PREVIOUS_PHASE_PROMPT_FILE}}` (e.g., `prompts/phases/01-planning/01_domain_model.md`)
+*   **Progress Tracker:** `prompts/project/PROGRESS.md`
+*   **Readiness Assessment:** `prompts/project/PHASE_ASSESSMENT.md`
+*   **Prompts Overview:** `prompts/README.md`
+
+## Review Steps
+1.  **Check `PROGRESS.md`:**
+    *   Verify `{{PREVIOUS_PHASE_PROMPT_FILE}}` component status is 'Completed'.
+    *   Verify `{{CURRENT_PHASE_PROMPT_FILE}}` component status is 'Defined' or 'To Do'.
+2.  **Check `PHASE_ASSESSMENT.md`:**
+    *   Confirm the assessment for `{{CURRENT_PHASE_PROMPT_FILE}}` indicates readiness (Clarity, Dependencies Clear).
+3.  **Review Prompts:**
+    *   Read `{{CURRENT_PHASE_PROMPT_FILE}}`. Are the objectives and tasks clear?
+    *   Briefly review outputs/content of `{{PREVIOUS_PHASE_PROMPT_FILE}}`. Is the handover logical?
+
+## Preparation Steps
+1.  **Define Success Criteria:** Based on the tasks in `{{CURRENT_PHASE_PROMPT_FILE}}`, formulate clear, measurable success criteria.
+2.  **Update Current Prompt:** Edit `{{CURRENT_PHASE_PROMPT_FILE}}` to add a "## Success Criteria" section with the defined checklist.
+3.  **Update Prompts README:** Edit `prompts/README.md` and add/update the entry for `{{CURRENT_PHASE_PROMPT_FILE}}` in the "Prompt Success Criteria" table.
+4.  **Testing Alignment:** If the current work introduces new UI/API slices, ensure the related *Testing prompt(s)* (Phase 03) exist or are updated
+    – e.g. add a unit/E2E test task row, update coverage gates, or create a new `03-testing/<feature>_tests.md`.
+5.  **Deployment Impact:** If the current work affects build/runtime (new env-vars, Docker changes, infra settings), update or create the corresponding
+    *Deployment prompt(s)* (Phase 04) and CI workflow notes (e.g. `04-deployment/ci_pipeline_updates.md`).
+
+## Action
+1.  **Confirm Readiness:** Are all review and preparation steps satisfactory?
+2.  **Document Outcomes (Previous Task):** If applicable, add key decisions, takeaways, links to artifacts, or deviations to the 'Notes' column for the *previous* task (`{{PREVIOUS_PHASE_PROMPT_FILE}}`) in `PROGRESS.md`.
+3.  **(If Ready) Update `PROGRESS.md`:** Change the status for the `{{CURRENT_PHASE_PROMPT_FILE}}` component to 'In Progress'.
+4.  **(If Ready) Begin Task:** Proceed with the first task listed in `{{CURRENT_PHASE_PROMPT_FILE}}`.
 EOF
     fi
 
